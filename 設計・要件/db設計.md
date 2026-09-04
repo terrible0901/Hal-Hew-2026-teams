@@ -1,7 +1,7 @@
 # DB設計書
 
 ## 1. 目的
-HEW Ver0.5のオークションサイトに必要なデータベース構造を定義する。対象はユーザー登録・作品出品・オークション・入札・自動入札・ブックマーク・ポイント/決済・通知である。
+HEW Ver0.5のオークションサイトに必要なデータベース構造を定義する。対象はメールアドレス認証・作品作成/出品・オークション・入札/落札・オークション/作品のお気に入り・タグ検索・ポイント/決済・通知である。
 
 対象外はライブ配信、コメント、管理画面の高度な管理、NFT、タイムラプス、印刷機能とする。
 
@@ -10,8 +10,12 @@ DB前提:
 - 時刻はUTCで保存し、画面表示時に日本時間へ変換する
 
 ## 2. 設計方針
-- 1ユーザーは複数の作品・オークション・入札を持てる。
+- 1ユーザーは複数の作品・入札を持てる。オークションの出品者は、関連する作品の出品者として取得する。
 - 作品とオークションは1対1とし、再出品は許可しない。
+- 作品とタグは多対多とし、タグで作品を検索できるようにする。
+- オークションのお気に入りと作品のお気に入りは別テーブルで管理する。
+- 描画を保存した作品は`draft`とし、作者が出品設定を完了した時だけオークションを作成して公開する。
+- 入札の受理時にポイントを即時減算し、高値更新で前最高入札者へ即時返却する。
 - オークション終了時に落札入札・落札者・確定額を記録する。
 - ポイント残高の変更は履歴と同一トランザクションで処理する。
 - 取引履歴を保護するため、ユーザー・作品・オークションは原則として物理削除しない。
@@ -19,8 +23,10 @@ DB前提:
 命名規則: テーブル名は複数形のsnake_case、主キーは`id`、外部キーは`{対象}_id`、日時は`created_at`、`updated_at`とする。
 
 ## 3. エンティティと関係
-- users 1 ──< artworks, auctions, bids, auto_bid_settings, bookmarks, wallet_transactions, payment_intents, notifications
+- users 1 ──< artworks, bids, auto_bid_settings, bookmarks, artwork_bookmarks, wallet_transactions, payment_intents, notifications
 - artworks 1 ──1 auctions
+- artworks 1 ──< artwork_bookmarks, artwork_tags
+- tags 1 ──< artwork_tags
 - auctions 1 ──< bids, auto_bid_settings, bookmarks, payment_intents
 - notifications 1 ──< notification_deliveries
 
@@ -31,7 +37,7 @@ DB前提:
 | --- | --- | --- | --- |
 | id | BIGINT UNSIGNED | PK, AUTO_INCREMENT | ユーザーID |
 | username | VARCHAR(50) | NOT NULL, UNIQUE | ユーザー名 |
-| email | VARCHAR(255) | NULL, UNIQUE | 任意のメールアドレス |
+| email | VARCHAR(255) | NOT NULL, UNIQUE | ログインに使用するメールアドレス |
 | password_hash | VARCHAR(255) | NOT NULL | パスワードハッシュ |
 | role | ENUM('user','admin') | NOT NULL DEFAULT 'user' | 権限 |
 | point_balance | INT UNSIGNED | NOT NULL DEFAULT 0 | 所持ポイント |
@@ -46,7 +52,7 @@ DB前提:
 | seller_id | BIGINT UNSIGNED | NOT NULL, FK -> users(id) | 出品者ID |
 | title | VARCHAR(200) | NOT NULL | 作品タイトル |
 | description | TEXT | NULL | 作品説明 |
-| image_path | VARCHAR(500) | NULL | 画像保存先 |
+| image_path | VARCHAR(500) | NOT NULL | PNG画像の相対保存先 |
 | status | ENUM('draft','listed','sold','cancelled') | NOT NULL DEFAULT 'draft' | 状態 |
 | created_at | DATETIME | NOT NULL DEFAULT CURRENT_TIMESTAMP | 作成日時 |
 | updated_at | DATETIME | NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | 更新日時 |
@@ -58,13 +64,12 @@ DB前提:
 | --- | --- | --- | --- |
 | id | BIGINT UNSIGNED | PK, AUTO_INCREMENT | オークションID |
 | artwork_id | BIGINT UNSIGNED | NOT NULL, UNIQUE, FK -> artworks(id) | 作品ID。再出品を防止する |
-| seller_id | BIGINT UNSIGNED | NOT NULL, FK -> users(id) | 出品者ID。artworks.seller_idと一致させる |
 | start_price | INT UNSIGNED | NOT NULL | 開始価格 |
 | current_price | INT UNSIGNED | NOT NULL | 現在価格 |
 | reserve_price | INT UNSIGNED | NULL | 最低落札価格 |
-| status | ENUM('scheduled','active','ended','cancelled') | NOT NULL DEFAULT 'scheduled' | 状態 |
-| start_time | DATETIME | NULL | 開始日時 |
-| end_time | DATETIME | NULL | 終了日時 |
+| status | ENUM('active','ended','cancelled') | NOT NULL DEFAULT 'active' | 状態。初期実装では作成と同時に開始する |
+| start_time | DATETIME | NOT NULL DEFAULT CURRENT_TIMESTAMP | 開始日時 |
+| end_time | DATETIME | NOT NULL | 終了日時 |
 | winner_id | BIGINT UNSIGNED | NULL, FK -> users(id) | 落札者ID |
 | winner_bid_id | BIGINT UNSIGNED | NULL, UNIQUE, FK -> bids(id) | 落札を確定した入札ID |
 | final_price | INT UNSIGNED | NULL | 確定落札額 |
@@ -72,7 +77,7 @@ DB前提:
 | created_at | DATETIME | NOT NULL DEFAULT CURRENT_TIMESTAMP | 作成日時 |
 | updated_at | DATETIME | NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | 更新日時 |
 
-インデックス: `(seller_id)`, `(status, end_time)`, `(winner_id)`
+インデックス: `(status, end_time)`, `(winner_id)`
 
 ### 4.4 bids
 | カラム名 | 型 | 制約 | 説明 |
@@ -173,14 +178,56 @@ DB前提:
 
 インデックス: `(delivery_status, created_at)`, `(notification_id)`
 
+### 4.11 artwork_bookmarks
+作品をお気に入り登録するためのテーブル。`bookmarks`は従来どおりオークションのお気に入り専用とし、対象を混在させない。
+
+| カラム名 | 型 | 制約 | 説明 |
+| --- | --- | --- | --- |
+| id | BIGINT UNSIGNED | PK, AUTO_INCREMENT | 作品お気に入りID |
+| user_id | BIGINT UNSIGNED | NOT NULL, FK -> users(id) | 登録ユーザーID |
+| artwork_id | BIGINT UNSIGNED | NOT NULL, FK -> artworks(id) | 対象作品ID |
+| created_at | DATETIME | NOT NULL DEFAULT CURRENT_TIMESTAMP | 登録日時 |
+
+インデックス: `UNIQUE(user_id, artwork_id)`, `(artwork_id)`
+
+### 4.12 tags
+作品の分類・検索に使用するタグのマスタテーブル。タグ名は一意とする。
+
+| カラム名 | 型 | 制約 | 説明 |
+| --- | --- | --- | --- |
+| id | BIGINT UNSIGNED | PK, AUTO_INCREMENT | タグID |
+| name | VARCHAR(50) | NOT NULL, UNIQUE | タグ名 |
+| created_at | DATETIME | NOT NULL DEFAULT CURRENT_TIMESTAMP | 作成日時 |
+| updated_at | DATETIME | NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | 更新日時 |
+
+インデックス: `UNIQUE(name)`
+
+### 4.13 artwork_tags
+作品とタグを対応付ける中間テーブル。1作品に複数タグ、1タグに複数作品を関連付ける。
+
+| カラム名 | 型 | 制約 | 説明 |
+| --- | --- | --- | --- |
+| id | BIGINT UNSIGNED | PK, AUTO_INCREMENT | 作品タグID |
+| artwork_id | BIGINT UNSIGNED | NOT NULL, FK -> artworks(id) | 対象作品ID |
+| tag_id | BIGINT UNSIGNED | NOT NULL, FK -> tags(id) | タグID |
+| created_at | DATETIME | NOT NULL DEFAULT CURRENT_TIMESTAMP | 登録日時 |
+
+インデックス: `UNIQUE(artwork_id, tag_id)`, `(tag_id, artwork_id)`
+
 ## 5. 制約と運用ルール
 - `auctions.start_price` は0以上、`current_price` は開始価格以上とする。
 - `bids.bid_amount` は現在価格より大きい値とする。出品者本人の入札・自動入札設定は不可とする。
-- オークションは `scheduled → active → ended`、または `scheduled / active → cancelled` と遷移する。終了・取消済みには入札不可とする。
+- オークションの出品者判定は`auctions.artwork_id`で作品を取得し、`artworks.seller_id`を使用する。`auctions`に出品者IDを重複保存しない。
+- `artwork_bookmarks`は同一ユーザーが同一作品を重複して登録できない。作品をお気に入り一覧で取得する際は`artwork_bookmarks.created_at`の降順とする。
+- タグ検索は`artwork_tags.tag_id`を起点に作品を取得する。1作品への同一タグの重複付与は不可とする。
+- `artworks`は`draft → listed → sold`、または`draft / listed → cancelled`と遷移する。`draft`は作者だけが閲覧・編集でき、`listed`以降を公開する。
+- 初期実装のオークションは作成と同時に`active`となり、終了日時の定期処理で`ended`へ遷移する。終了・取消済みには入札不可とする。予約開始の`scheduled`状態は後続拡張とする。
 - 落札時は`winner_id`、`winner_bid_id`、`final_price`を同一トランザクションで確定する。最低落札価格未満なら落札者・落札入札はNULLとする。
 - 入札処理では対象`auctions`行と入札者`users`行を`SELECT ... FOR UPDATE`でロックし、最新価格・状態・残高を検証してから、入札・残高・履歴を同一トランザクションで更新する。
-- ポイント残高の増減は`users.point_balance`更新と`wallet_transactions`追加を同一トランザクションで行い、残高は負にしない。
+- 受理した入札では、入札者残高を入札額だけ減算して`bid`取引を記録する。高値更新時は前最高入札者へ同額を返却して`refund`取引を記録する。残高更新・入札・取引履歴は同一トランザクションで処理し、残高は負にしない。
 - 自動入札は`max_amount`の範囲内で処理し、同額上限なら設定日時が早いものを優先する。
 - `bids.payment_intent_id`は内部IDを参照し、StripeのIDは`payment_intents.provider_intent_id`だけに保持する。
 - 外部キーの削除動作は原則RESTRICTとする。削除の代わりに`is_active`または`status`で無効化する。
-- 通知は`notifications`にアプリ内通知として保存する。メール通知の送信先・配信状態・送信日時は`notification_deliveries`に記録する。メールアドレス未登録のユーザーにはメール配信履歴を作成しない。
+- タグを複数指定した検索はAND条件とし、選択したすべてのタグを持つ作品だけを返す。
+- 既存データに対して`users.email`を必須化する際は、先にメールアドレス未設定のユーザーを補完または無効化してから制約を追加する。
+- 通知は`notifications`にアプリ内通知として保存する。メール通知の送信先・配信状態・送信日時は`notification_deliveries`に記録する。
