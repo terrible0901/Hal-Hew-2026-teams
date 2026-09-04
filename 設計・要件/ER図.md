@@ -1,12 +1,12 @@
-# ER図
+# ER図（Mermaid）
 
-`db設計.md` を正とし、`画面遷移図-memo.md` の画面操作も対応付けたHEW Ver0.5のER図です。メールアドレス認証、下書き保存後の出品、商品詳細画面内の入札、ポイントの即時減算・返却を含みます。作品とオークションは再出品なしの1対1です。
+`db設計.md` をもとにしたHEW Ver0.5のER図です。メールアドレス認証、下書き保存後の出品、即時開始オークション、ポイントの即時減算・返却を含みます。作品とオークションは再出品なしの1対1です。
 
 ```mermaid
 erDiagram
-    USERS ||--o{ ARTWORKS : "下書きを作成・出品する"
-    USERS ||--o{ BIDS : "商品詳細で入札する"
-    USERS o|--o{ AUCTIONS : "落札者となる"
+    direction TB
+    USERS ||--o{ ARTWORKS : "出品する"
+    USERS ||--o{ BIDS : "入札する"
     USERS ||--o{ AUTO_BID_SETTINGS : "自動入札を設定する"
     USERS ||--o{ BOOKMARKS : "登録する"
     USERS ||--o{ ARTWORK_BOOKMARKS : "作品をお気に入り登録する"
@@ -14,7 +14,7 @@ erDiagram
     USERS ||--o{ WALLET_TRANSACTIONS : "ポイントを消費・返却する"
     USERS ||--o{ NOTIFICATIONS : "受信する"
 
-    ARTWORKS ||--o| AUCTIONS : "出品設定完了時に1件作成"
+    ARTWORKS ||--o| AUCTIONS : "1作品につき1オークション"
     ARTWORKS ||--o{ ARTWORK_BOOKMARKS : "お気に入り登録される"
     ARTWORKS ||--o{ ARTWORK_TAGS : "タグ付けされる"
     TAGS ||--o{ ARTWORK_TAGS : "作品に付与される"
@@ -165,6 +165,16 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
+
+    classDef core fill:#1f4b7a,color:#ffffff,stroke:#163754,stroke-width:2px
+    classDef transaction fill:#e8f1fb,color:#102a43,stroke:#6c9bc9
+    classDef discovery fill:#eaf7ed,color:#163b22,stroke:#71ad7e
+    classDef support fill:#fff2cc,color:#5c4700,stroke:#d6b656
+
+    class USERS,ARTWORKS,AUCTIONS core
+    class BIDS,AUTO_BID_SETTINGS,WALLET_TRANSACTIONS transaction
+    class TAGS,ARTWORK_TAGS,BOOKMARKS,ARTWORK_BOOKMARKS discovery
+    class PAYMENT_INTENTS,NOTIFICATIONS,NOTIFICATION_DELIVERIES support
 ```
 
 ## 補足
@@ -179,14 +189,3 @@ erDiagram
 - オークションの出品者は `auctions.artwork_id → artworks.seller_id` から取得し、`auctions` には保持しない。
 - 受理した最高入札は入札者のポイントを即時減算し、次の高値入札時に前最高入札者へ`refund`として返却する。両方の履歴は`wallet_transactions`に記録する。
 - `auto_bid_settings` は `auction_id` と `user_id` の組み合わせを一意にする。
-
-## 画面との対応
-
-| 画面操作 | 主なテーブル | データの扱い |
-| --- | --- | --- |
-| ログイン/新規登録 | `users` | メールアドレスでユーザーを識別する。 |
-| 絵を描く画面でPNG保存 | `artworks` | `draft`の作品と画像パスを作成する。 |
-| 出品設定画面で公開 | `artworks`, `auctions`, `artwork_tags` | 作品を`listed`へ更新し、即時開始のオークションとタグ関連を作成する。 |
-| 商品詳細画面で入札 | `bids`, `auctions`, `wallet_transactions` | 入札・現在価格・ポイント減算/返却を同一トランザクションで更新する。 |
-| 商品詳細画面でお気に入り操作 | `bookmarks`, `artwork_bookmarks` | オークション用と作品用を別々に登録・解除する。 |
-| アカウント画面で一覧表示 | `artworks`, `bookmarks`, `artwork_bookmarks` | 自分の下書き、作品お気に入り、オークションお気に入りを表示する。 |
