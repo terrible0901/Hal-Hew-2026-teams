@@ -4,7 +4,8 @@ USE hew;
 
 CREATE TABLE users (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(50) NOT NULL UNIQUE,
+    username VARCHAR(20) NOT NULL UNIQUE,
+    disp_name VARCHAR(50) NOT NULL, --set default="user{user.id}" with FLASK
     email VARCHAR(225) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     role ENUM('user','admin') NOT NULL DEFAULT 'user',
@@ -113,10 +114,10 @@ CREATE TABLE payment_intents (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT UNSIGNED NOT NULL,
     auction_id BIGINT UNSIGNED NULL,
-    provider ENUM('stripe') NOT NULL DEFAULT 'stripe',
-    provider_intent_id VARCHAR(255) NULL UNIQUE,
+    -- provider ENUM('stripe') NOT NULL DEFAULT 'stripe',
+    -- provider_intent_id VARCHAR(255) NULL UNIQUE,
     amount INT UNSIGNED NOT NULL,
-    currency VARCHAR(10) NOT NULL DEFAULT 'JPY',
+    -- currency VARCHAR(10) NOT NULL DEFAULT 'JPY',
     status ENUM('pending','succeeded','failed','cancelled') NOT NULL DEFAULT 'pending',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
