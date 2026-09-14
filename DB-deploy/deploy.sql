@@ -122,7 +122,7 @@ CREATE TABLE payment_intents (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    CONSTRAINT fk_payent_user
+    CONSTRAINT fk_payment_user
         FOREIGN KEY (user_id)
         REFERENCES users(id),
 
