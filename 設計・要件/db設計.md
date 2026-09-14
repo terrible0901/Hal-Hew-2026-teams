@@ -44,6 +44,8 @@ DB前提:
 | is_active | BOOLEAN | NOT NULL DEFAULT TRUE | 有効フラグ |
 | created_at | DATETIME | NOT NULL DEFAULT CURRENT_TIMESTAMP | 登録日時 |
 | updated_at | DATETIME | NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | 更新日時 |
+ディスプレイネームを後から編集可に、登録前はUser{id}の形式で表示
+flaskから登録前・登録後の状況は管理し、編集する際は正規表現で受ける
 
 ### 4.2 artworks
 | カラム名 | 型 | 制約 | 説明 |
@@ -112,8 +114,6 @@ DB前提:
 | id | BIGINT UNSIGNED | PK, AUTO_INCREMENT | 決済ID |
 | user_id | BIGINT UNSIGNED | NOT NULL, FK -> users(id) | 顧客ID |
 | auction_id | BIGINT UNSIGNED | NULL, FK -> auctions(id) | 関連オークション |
-| provider | ENUM('stripe') | NOT NULL DEFAULT 'stripe' | 決済サービス |
-| provider_intent_id | VARCHAR(255) | NULL, UNIQUE | Stripeの外部決済ID |
 | amount | INT UNSIGNED | NOT NULL | 決済金額 |
 | currency | VARCHAR(10) | NOT NULL DEFAULT 'JPY' | 通貨 |
 | status | ENUM('pending','succeeded','failed','cancelled') | NOT NULL DEFAULT 'pending' | 決済状態 |
