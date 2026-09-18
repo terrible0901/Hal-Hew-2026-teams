@@ -26,7 +26,7 @@ DB前提:
 - ポイント残高の変更は履歴と同一トランザクションで処理する。
 - 取引履歴を保護するため、ユーザー・作品・オークションは原則として物理削除しない。
 
-命名規則: テーブル名は複数形のsnake_case、主キーは`id`、外部キーは`{対象}_id`、日時は`created_at`、`updated_at`とする。ただし、SQLではタグテーブルの作成名が`TAGS`、参照名が`tags`となっている。本書では作成名に合わせて`TAGS`と表記し、外部キーの参照先表記はSQLに従う。テーブル名の大文字・小文字を区別する環境では、この不一致の解消が必要となる。
+命名規則: テーブル名は小文字・複数形のsnake_case、主キーは`id`、外部キーは`{対象}_id`、日時は`created_at`、`updated_at`とする。
 
 ## 3. エンティティと関係
 親1件に対する子の件数と、子から見た参照の必須・任意を示す。任意参照の外部キーはNULLを許可する。
@@ -37,7 +37,7 @@ DB前提:
 | users | auctions(winner_id) | 0件以上 | 任意 |
 | artworks | auctions(artwork_id) | 0〜1件 | 必須 |
 | artworks | artwork_bookmarks(artwork_id), artwork_tags(artwork_id) | 0件以上 | 必須 |
-| TAGS | artwork_tags(tag_id) | 0件以上 | 必須 |
+| tags | artwork_tags(tag_id) | 0件以上 | 必須 |
 | auctions | bids(auction_id) | 0〜1件 | 必須 |
 | auctions | auto_bid_settings(auction_id), bookmarks(auction_id) | 0件以上 | 必須 |
 | auctions | payment_intents(auction_id), wallet_transactions(related_auction_id), notifications(related_auction_id) | 0件以上 | 任意 |
@@ -208,7 +208,7 @@ DB前提:
 
 インデックス: `UNIQUE(user_id, artwork_id)`, `(artwork_id)`
 
-### 4.12 TAGS
+### 4.12 tags
 作品の分類・検索に使用するタグのマスタテーブル。タグ名は一意とする。
 
 | カラム名 | 型 | 制約 | 説明 |

@@ -250,7 +250,7 @@ CREATE TABLE artwork_bookmarks (
     INDEX idx_artbookmark_artwork (artwork_id)
 );
 
-CREATE TABLE TAGS (
+CREATE TABLE tags (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL UNIQUE,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
