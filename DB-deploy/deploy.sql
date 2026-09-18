@@ -17,7 +17,7 @@ CREATE TABLE users (
 
 CREATE TABLE artworks (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    seller_id BIGINT UNSIGNED NOT NULL,
+    artist_id BIGINT UNSIGNED NOT NULL,
     title VARCHAR(200) NOT NULL,
     description TEXT NULL,
     image_path VARCHAR(500) NOT NULL,
@@ -26,10 +26,10 @@ CREATE TABLE artworks (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     CONSTRAINT fk_artwork_seller
-        FOREIGN KEY (seller_id)
+        FOREIGN KEY (artist_id)
         REFERENCES users(id),
     
-    INDEX idx_artworks_seller (seller_id),
+    INDEX idx_artworks_seller (artist_id),
     INDEX idx_artworks_status (status)
 );
 
@@ -69,7 +69,9 @@ CREATE TABLE bids (
     bid_amount INT UNSIGNED NOT NULL,
     is_auto_bid BOOLEAN NOT NULL DEFAULT FALSE,
     bid_status ENUM('accepted','rejected') NOT NULL,
-    payment_intent_id BIGINT UNSIGNED NULL,
+    -- --------------------------------------
+    -- payment_intent_id BIGINT UNSIGNED NULL,
+    -- --------------------------------------
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_bids_auction_id
@@ -114,9 +116,9 @@ CREATE TABLE payment_intents (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT UNSIGNED NOT NULL,
     auction_id BIGINT UNSIGNED NULL,
+    amount INT UNSIGNED NOT NULL,
     -- provider ENUM('stripe') NOT NULL DEFAULT 'stripe',
     -- provider_intent_id VARCHAR(255) NULL UNIQUE,
-    amount INT UNSIGNED NOT NULL,
     -- currency VARCHAR(10) NOT NULL DEFAULT 'JPY',
     status ENUM('pending','succeeded','failed','cancelled') NOT NULL DEFAULT 'pending',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -144,6 +146,7 @@ REFERENCES payment_intents(id);
 CREATE TABLE wallet_transactions (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT UNSIGNED NOT NULL,
+    artist_id BIGINT UNSIGNED NULL,
     transaction_type ENUM('charge','bid','refund','purchase','bonus') NOT NULL,
     amount INT NOT NULL,
     balance_after INT UNSIGNED NOT NULL,
@@ -154,6 +157,10 @@ CREATE TABLE wallet_transactions (
     CONSTRAINT fk_wallet_user
         FOREIGN KEY (user_id)
         REFERENCES users(id),
+
+    CONSTRAINT fk_wallet_artist
+        Foreign Key (artist_id) 
+        REFERENCES (artwork(artist_id))
     
     CONSTRAINT fk_wallet_related_auction
         FOREIGN KEY (related_auction_id)
