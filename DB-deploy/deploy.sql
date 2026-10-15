@@ -5,7 +5,7 @@ USE hew;
 CREATE TABLE users (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(20) NOT NULL UNIQUE,
-    disp_name VARCHAR(50) NOT NULL, --set default="user{user.id}" with FLASK
+    disp_name VARCHAR(50) NOT NULL, -- set default="user{user.id}" with FLASK
     email VARCHAR(225) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     role ENUM('user','admin') NOT NULL DEFAULT 'user',
@@ -137,10 +137,10 @@ CREATE TABLE payment_intents (
     INDEX idx_payment_status (status)
 );
 
-ALTER TABLE bids
-ADD CONSTRAINT fk_bids_payment
-FOREIGN KEY (payment_intent_id)
-REFERENCES payment_intents(id);
+-- ALTER TABLE bids
+-- ADD CONSTRAINT fk_bids_payment
+-- FOREIGN KEY (payment_intent_id)
+-- REFERENCES payment_intents(id);
 
 
 CREATE TABLE wallet_transactions (
@@ -160,7 +160,7 @@ CREATE TABLE wallet_transactions (
 
     CONSTRAINT fk_wallet_artist
         Foreign Key (artist_id) 
-        REFERENCES (artwork(artist_id))
+        REFERENCES artworks(artist_id),
     
     CONSTRAINT fk_wallet_related_auction
         FOREIGN KEY (related_auction_id)
