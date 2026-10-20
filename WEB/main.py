@@ -1,10 +1,10 @@
-from app.dependencies import render_template,request,app,connect_sql
+from WEB.app import common
 
-@app.route('/')
+@common.app.route('/')
 def index() :
     # 検索機能
-    search = request.args.get('search') #HTMLに検索バーに"search"のnameをつけてください
-    filter = request.args.get('filter') #HTMLにタイムフィルターに"filter"のnameをつけてください
+    search = common.request.args.get('search') #HTMLに検索バーに"search"のnameをつけてください
+    filter = common.request.args.get('filter') #HTMLにタイムフィルターに"filter"のnameをつけてください
 
     query = '''
     SELECT 
@@ -34,14 +34,14 @@ def index() :
         params += {filter}
 
     query += 'ORDER BY remaining_time ASC'
-    conn = connect_sql()
+    conn = common.connect_sql()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(query, params)
     result = cursor.fetchall()
     cursor.close()
     conn.close()
 
-    return render_template('index.html', result=result)
+    return common.render_template('index.html', result=result)
 
 
 

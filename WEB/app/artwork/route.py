@@ -1,19 +1,19 @@
-from dependencies import render_template,request,app
+from WEB.app import common
 
-@app.route('/draw/setup')
+@common.app.route('/draw/setup')
 def setup() :
-    return render_template('setup.html')
+    return common.render_template('setup.html')
 
-@app.route('/draw/canvas')
+@common.app.route('/draw/canvas')
 def canvas() :
-    time = request.args.get('time')
-    theme = request.args.get('theme')
-    mode = request.args.get('mode')
-    return render_template('canvas.html', time=time, theme=theme, mode=mode)
+    time = common.request.args.get('time')
+    theme = common.request.args.get('theme')
+    mode = common.request.args.get('mode')
+    return common.render_template('canvas.html', time=time, theme=theme, mode=mode)
 
-@app.route('/draw/complete')
+@common.app.route('/draw/complete')
 def complete() :
-    return render_template('complete.html')
+    return common.render_template('complete.html')
 
 # @app.route('/post_art')
 # def post_art() :
