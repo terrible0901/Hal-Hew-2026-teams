@@ -1,10 +1,25 @@
 from app.dependencies import render_template,request,app,connect_sql
+from flask import Flask, render_template, request
+import mysql.connector
+
+app = Flask(__name__)
+
+def connect_sql() :
+    return mysql.connector.connect(
+        host = "localhost",
+        user = "root",
+        password = "",
+        database = "hew"
+    )
+
+
 
 @app.route('/')
 def index() :
     # 検索機能
     search = request.args.get('search') #HTMLに検索バーに"search"のnameをつけてください
     filter = request.args.get('filter') #HTMLにタイムフィルターに"filter"のnameをつけてください
+    search = request.args.get('search')
 
     query = '''
     SELECT 
@@ -33,6 +48,10 @@ def index() :
         query += 'art.draw_time = %s'
         params += {filter}
 
+    if search :
+        query += 'WHERE art.title LIKE %s OR user.disp_name LIKE %s \n'
+        params = (f'%{search}%',)
+
     query += 'ORDER BY remaining_time ASC'
     conn = connect_sql()
     cursor = conn.cursor(dictionary=True)
@@ -46,3 +65,18 @@ def index() :
 
 
     
+@app.route('/draw/setup')
+def setup() :
+    return render_template('setup.html')
+
+@app.route('/draw/canvas')
+def canvas() :
+    time = request.args.get('time')
+    theme = request.args.get('theme')
+    mode = request.args.get('mode')
+    return render_template('canvas.html', time=time, theme=theme, mode=mode)
+
+@app.route('/draw/complete')
+def complete() :
+    return render_template('complete.html')
+
