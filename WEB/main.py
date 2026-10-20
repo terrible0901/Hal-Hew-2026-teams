@@ -1,3 +1,4 @@
+from app.dependencies import render_template,request,app,connect_sql
 from flask import Flask, render_template, request
 import mysql.connector
 
@@ -16,6 +17,8 @@ def connect_sql() :
 @app.route('/')
 def index() :
     # 検索機能
+    search = request.args.get('search') #HTMLに検索バーに"search"のnameをつけてください
+    filter = request.args.get('filter') #HTMLにタイムフィルターに"filter"のnameをつけてください
     search = request.args.get('search')
 
     query = '''
@@ -24,6 +27,7 @@ def index() :
         user.disp_name AS artist_name,
         auc.current_price,
         art.image_path,
+        art.draw_time,
         auc.end_time,
         TIMEDIFF(auc.end_time, NOW()) AS remaining_time
     FROM artworks as art
@@ -33,6 +37,16 @@ def index() :
         ON art.id = auc.artwork_id
     '''
     params = ()
+    if search or filter :
+        query += 'WHERE '
+    if search :
+        query += 'art.title LIKE %s OR user.disp_name LIKE %s \n'
+        params = (f'%{search}%',)
+        if filter :
+            query += 'AND '
+    if filter :
+        query += 'art.draw_time = %s'
+        params += {filter}
 
     if search :
         query += 'WHERE art.title LIKE %s OR user.disp_name LIKE %s \n'
@@ -48,6 +62,9 @@ def index() :
 
     return render_template('index.html', result=result)
 
+
+
+    
 @app.route('/draw/setup')
 def setup() :
     return render_template('setup.html')
