@@ -6,7 +6,7 @@ CREATE TABLE users (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(20) NOT NULL UNIQUE,
     disp_name VARCHAR(50) NOT NULL, -- set default="user{user.id}" with FLASK
-    email VARCHAR(225) NOT NULL UNIQUE,
+    #email VARCHAR(225) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     role ENUM('user','admin') NOT NULL DEFAULT 'user',
     point_balance INT UNSIGNED NOT NULL DEFAULT 0,
@@ -21,6 +21,7 @@ CREATE TABLE artworks (
     title VARCHAR(200) NOT NULL,
     description TEXT NULL,
     image_path VARCHAR(500) NOT NULL,
+    draw_time ENUM('long','mid','long') NOT NULL,
     status ENUM('draft','listed','sold','cancelled') NOT NULL DEFAULT 'draft',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
