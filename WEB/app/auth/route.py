@@ -1,9 +1,3 @@
-# from flask import Flask, render_template, request, redirect, url_for, flash
-# from werkzeug.security import generate_password_hash
-# from main import connect_sql
-# import mysql.connector, users
-
-# app = Flask(__name__)
 from dependencies import render_template,request,redirect,url_for,flash,app,generate_password_hash,connect_sql
 
 @app.route('/sign_in', methods=['POST']) #signin
