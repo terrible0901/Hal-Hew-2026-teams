@@ -1,25 +1,10 @@
-from app.dependencies import render_template,request,app,connect_sql
-from flask import Flask, render_template, request
-import mysql.connector
+from WEB.app import common
 
-app = Flask(__name__)
-
-def connect_sql() :
-    return mysql.connector.connect(
-        host = "localhost",
-        user = "root",
-        password = "",
-        database = "hew"
-    )
-
-
-
-@app.route('/')
+@common.app.route('/')
 def index() :
     # 検索機能
-    search = request.args.get('search') #HTMLに検索バーに"search"のnameをつけてください
-    filter = request.args.get('filter') #HTMLにタイムフィルターに"filter"のnameをつけてください
-    search = request.args.get('search')
+    search = common.request.args.get('search') #HTMLに検索バーに"search"のnameをつけてください
+    filter = common.request.args.get('filter') #HTMLにタイムフィルターに"filter"のnameをつけてください
 
     query = '''
     SELECT 
@@ -53,30 +38,30 @@ def index() :
         params = (f'%{search}%',)
 
     query += 'ORDER BY remaining_time ASC'
-    conn = connect_sql()
+    conn = common.connect_sql()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(query, params)
     result = cursor.fetchall()
     cursor.close()
     conn.close()
 
-    return render_template('index.html', result=result)
+    return common.render_template('index.html', result=result)
 
 
 
     
-@app.route('/draw/setup')
+@common.app.route('/draw/setup')
 def setup() :
-    return render_template('setup.html')
+    return common.render_template('setup.html')
 
-@app.route('/draw/canvas')
+@common.app.route('/draw/canvas')
 def canvas() :
-    time = request.args.get('time')
-    theme = request.args.get('theme')
-    mode = request.args.get('mode')
-    return render_template('canvas.html', time=time, theme=theme, mode=mode)
+    time = common.request.args.get('time')
+    theme = common.request.args.get('theme')
+    mode = common.request.args.get('mode')
+    return common.render_template('canvas.html', time=time, theme=theme, mode=mode)
 
-@app.route('/draw/complete')
+@common.app.route('/draw/complete')
 def complete() :
-    return render_template('complete.html')
+    return common.render_template('complete.html')
 
