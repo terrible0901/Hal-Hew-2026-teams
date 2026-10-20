@@ -33,6 +33,10 @@ def index() :
         query += 'art.draw_time = %s'
         params += {filter}
 
+    if search :
+        query += 'WHERE art.title LIKE %s OR user.disp_name LIKE %s \n'
+        params = (f'%{search}%',)
+
     query += 'ORDER BY remaining_time ASC'
     conn = common.connect_sql()
     cursor = conn.cursor(dictionary=True)
@@ -46,3 +50,18 @@ def index() :
 
 
     
+@common.app.route('/draw/setup')
+def setup() :
+    return render_template('setup.html')
+
+@common.app.route('/draw/canvas')
+def canvas() :
+    time = request.args.get('time')
+    theme = request.args.get('theme')
+    mode = request.args.get('mode')
+    return render_template('canvas.html', time=time, theme=theme, mode=mode)
+
+@common.app.route('/draw/complete')
+def complete() :
+    return render_template('complete.html')
+
