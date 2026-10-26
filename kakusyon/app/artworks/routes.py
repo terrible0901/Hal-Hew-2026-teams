@@ -1,4 +1,4 @@
-from WEB.app import common
+from kakusyon.app import common
 
 @common.app.route('/draw/setup')
 def setup() :

@@ -1,4 +1,4 @@
-from WEB.app import common
+from kakusyon.app import common
 
 @common.app.route('/sign_up', methods=['POST']) #signup
 def sign_up() :
