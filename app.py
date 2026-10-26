@@ -1,4 +1,4 @@
-from WEB import 
+from kakusyon import 
 
 
 
