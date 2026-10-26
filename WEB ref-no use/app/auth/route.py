@@ -1,7 +1,7 @@
 from WEB.app import common
 
-@common.app.route('/sign_in', methods=['POST']) #signin
-def sign_in() :
+@common.app.route('/sign_up', methods=['POST']) #signup
+def sign_up() :
     # email = request.args.get('email') #いる？要らない？
     password = common.request.form.get('password')
     confirmation = common.request.form.get('confirmation')
@@ -11,8 +11,8 @@ def sign_in() :
 
     username_double = username_check(username)
     if username_double :
-        common.flash("Username already taken."),"error"
-        return common.redirect(common.url_for("index") + "#signin")
+        common.flash("Username already taken.","error")
+        return common.redirect(common.url_for("index") + "#signup") #expect bug
     
     if not disp_name :
         disp_name = username
@@ -20,7 +20,7 @@ def sign_in() :
 
     if password != confirmation :
         common.flash("Passwords do not match. Please try again.", "error")
-        return common.redirect(common.url_for("index") + "#signin") #新登録もダルへに飛ばす、フロントから対応、後で治す
+        return common.redirect(common.url_for("index") + "#signup") #expect bug
 
     hashed_password = common.generate_password_hash(password)
     conn = common.connect_sql()
@@ -39,8 +39,8 @@ def username_check(username) :
     cursor = conn.cursor()
     query = "SELECT username FROM users where username = %s"
     params = (username,)
-    cursor.execute()
-    result = cursor.fetchall()
+    cursor.execute(query,params)
+    result = cursor.fetchone()
     cursor.close()
     conn.close()
     return result
