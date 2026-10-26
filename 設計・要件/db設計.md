@@ -1,9 +1,29 @@
 # DB設計書
 
-## 1. 目的
-HEW Ver0.5のオークションサイトに必要なデータベース構造を定義する。対象はメールアドレス認証・作品作成/出品・オークション・入札/落札・オークション/作品のお気に入り・タグ検索・ポイント/決済・通知である。
+## 2026/10/26の確定仕様と現行SQLの差分
 
-対象外はライブ配信、コメント、管理画面の高度な管理、NFT、タイムラプス、印刷機能とする。
+本書のカラム表は現行[deploy.sql](../DB-deploy/deploy.sql)の記録であり、目標仕様とは区別する。
+最新仕様は[仕様決定事項](仕様決定事項-2026-10-26.md)を優先する。今回はSQL・モデル・マイグレーションを変更していない。
+
+| 対象 | 現行の問題 | 今後必要な変更 |
+| --- | --- | --- |
+| ユーザー | `email`が必須 | メールを一切使わない構成へ移行。復旧コードのハッシュ・無効化を管理 |
+| 複数入札 | `bids.auction_id`が一意 | 複数入札履歴・最高入札者自身の差額消費・返還を管理 |
+| 再出品 | `auctions.artwork_id`が一意 | 過去履歴を保持し、同時開催だけ最大1件に制限 |
+| 作品・制作 | 画像必須、描画時間ENUMの値が重複 | 画像なし下書き、制作開始・期限・保存猶予・正式保存完了を管理。10・30・60・300秒に対応 |
+| 配布データ | PNGのみを想定 | 非公開の原寸PNG・全レイヤーZIP・構成情報、取得権限を管理 |
+| 公開状態 | 取消と非公開の扱いが未整理 | 未落札・取消の公開履歴と、管理者の非公開・公開復帰を区別 |
+| ポイント | 確定代金・重複防止が未具体化 | 出品者への全額加算、ボーナス、未返還額と重複防止履歴を管理 |
+| 通知 | メール配信・課金結果を含む | アプリ内のみ。対象と契機は仕様決定事項8章に従う |
+| 配信・コメント | 新仕様未反映 | 1作品1配信、描画期限連動、200文字・連投制限、監査・本文消去期限を管理 |
+
+以降に残るメール・決済関連テーブルは現行スキーマの記録であり、使用する製品要件ではない。
+
+
+## 1. 目的
+HEWの現行SQL構造を記録する。メール・決済の旧定義を含むため、製品要件は冒頭の差分と仕様決定事項を参照する。
+
+現行スキーマには新しい制作配信・コメント設計が未反映。これらは追加仕様として設計対象であり、NFT・タイムラプス・印刷とは区別する。
 
 定義の基準は[`DB-deploy/deploy.sql`](../DB-deploy/deploy.sql)とする。コメントアウトされたカラムは現行のテーブル定義に含めない。
 
@@ -33,7 +53,7 @@ DB前提:
 
 | 親テーブル | 子テーブル（外部キー） | 親1件に対する子の件数 | 子からの参照 |
 | --- | --- | --- | --- |
-| users | artworks(seller_id), bids(bidder_id), auto_bid_settings(user_id), bookmarks(user_id), artwork_bookmarks(user_id), wallet_transactions(user_id), payment_intents(user_id), notifications(user_id) | 0件以上 | 必須 |
+| users | artworks(artist_id), bids(bidder_id), auto_bid_settings(user_id), bookmarks(user_id), artwork_bookmarks(user_id), wallet_transactions(user_id), payment_intents(user_id), notifications(user_id) | 0件以上 | 必須 |
 | users | auctions(winner_id) | 0件以上 | 任意 |
 | artworks | auctions(artwork_id) | 0〜1件 | 必須 |
 | artworks | artwork_bookmarks(artwork_id), artwork_tags(artwork_id) | 0件以上 | 必須 |
@@ -68,7 +88,7 @@ DB前提:
 | カラム名 | 型 | 制約 | 説明 |
 | --- | --- | --- | --- |
 | id | BIGINT UNSIGNED | PK, AUTO_INCREMENT | 作品ID |
-| seller_id | BIGINT UNSIGNED | NOT NULL, FK -> users(id) | 出品者ID |
+| artist_id | BIGINT UNSIGNED | NOT NULL, FK -> users(id) | 出品者ID |
 | title | VARCHAR(200) | NOT NULL | 作品タイトル |
 | description | TEXT | NULL | 作品説明 |
 | image_path | VARCHAR(500) | NOT NULL | PNG画像の相対保存先 |
@@ -76,7 +96,7 @@ DB前提:
 | created_at | DATETIME | NOT NULL DEFAULT CURRENT_TIMESTAMP | 作成日時 |
 | updated_at | DATETIME | NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | 更新日時 |
 
-インデックス: `(seller_id)`, `(status)`
+インデックス: `(artist_id)`, `(status)`
 
 ### 4.3 auctions
 | カラム名 | 型 | 制約 | 説明 |
@@ -238,25 +258,25 @@ DB前提:
 
 - 4章のPK・NOT NULL・UNIQUE・外部キー・DEFAULTとインデックスを定義する。各`id`は`BIGINT UNSIGNED`の自動採番主キーである。
 - `bids.auction_id`のUNIQUE制約は入札状態に関係なく適用されるため、同一オークションへの2件目の入札は保存できない。下記の高値更新・返金・自動入札など、複数の入札を履歴として保存する運用とは整合しない。
-- `auctions.winner_bid_id`と`bids.payment_intent_id`の外部キーは、参照先テーブルの作成後に`ALTER TABLE`で追加される。
+- `auctions.winner_bid_id`の外部キーは参照先作成後に追加される。`bids.payment_intent_id`は現行SQLではコメントアウトされており、有効な外部キーではない。
 - 外部キーに`ON DELETE`・`ON UPDATE`の明示指定はなく、参照中の親行の削除・キー更新はデフォルト動作で制限される。CASCADEは定義されていない。
 - 落札入札が同じオークションの入札であることや、落札者がその入札者と一致することを保証する複合制約はない。アプリケーション側で検証する必要がある。
 
-### 5.2 アプリケーション側の運用方針
+### 5.2 目標とするアプリケーション側の運用方針
 以下は運用上の要件であり、SQLだけでは処理・検証されない。複数入札を前提とする処理には、5.1に記載したUNIQUE制約との調整が必要となる。
 
 - `auctions.start_price` は0以上、`current_price` は開始価格以上とする。
 - `bids.bid_amount` は現在価格より大きい値とする。出品者本人の入札・自動入札設定は不可とする。
-- オークションの出品者判定は`auctions.artwork_id`で作品を取得し、`artworks.seller_id`を使用する。`auctions`に出品者IDを重複保存しない。
+- オークションの出品者判定は`auctions.artwork_id`で作品を取得し、`artworks.artist_id`（現行SQL名）を使用する。`auctions`に出品者IDを重複保存しない。
 - `artwork_bookmarks`は同一ユーザーが同一作品を重複して登録できない。作品をお気に入り一覧で取得する際は`artwork_bookmarks.created_at`の降順とする。
 - タグ検索は`artwork_tags.tag_id`を起点に作品を取得する。1作品への同一タグの重複付与は不可とする。
 - `artworks`は`draft → listed → sold`、または`draft / listed → cancelled`と遷移する。`draft`は作者だけが閲覧・編集でき、`listed`以降を公開する。
 - 初期実装のオークションは作成と同時に`active`となり、終了日時の定期処理で`ended`へ遷移する。終了・取消済みには入札不可とする。予約開始の`scheduled`状態は後続拡張とする。
-- 落札時は`winner_id`、`winner_bid_id`、`final_price`を同一トランザクションで確定する。最低落札価格未満なら落札者・落札入札はNULLとする。
+- 落札時は`winner_id`、`winner_bid_id`、`final_price`を同一トランザクションで確定する。最低落札価格は使わず、受理済み入札があれば最高入札者が落札する。出品者へ全額を一度だけ加算する。
 - 入札処理では対象`auctions`行と入札者`users`行を`SELECT ... FOR UPDATE`でロックし、最新価格・状態・残高を検証してから、入札・残高・履歴を同一トランザクションで更新する。
-- 受理した入札では、入札者残高を入札額だけ減算して`bid`取引を記録する。高値更新時は前最高入札者へ同額を返却して`refund`取引を記録する。残高更新・入札・取引履歴は同一トランザクションで処理し、残高は負にしない。
+- 受理した入札では、最高入札者自身の増額は差額、それ以外は入札額を減算して`bid`取引を記録する。別ユーザーによる高値更新時は前最高入札者の未返還額を返却して`refund`取引を記録する。残高更新・入札・取引履歴は同一トランザクションで処理し、残高は負にしない。
 - 自動入札は`max_amount`の範囲内で処理し、同額上限なら設定日時が早いものを優先する。
-- `bids.payment_intent_id`は`payment_intents.id`を参照する。現行SQLにはStripeなど外部決済サービスのIDを保存するカラムはない。
+- 決済・課金は対象外。コメントアウトされた`bids.payment_intent_id`を有効な現行カラムとして扱わない。
 - ユーザー・作品・オークションは削除の代わりに`is_active`または`status`で無効化する。
 - タグを複数指定した検索はAND条件とし、選択したすべてのタグを持つ作品だけを返す。
-- 通知は`notifications`にアプリ内通知として保存する。メール通知の送信先・配信状態・送信日時は`notification_deliveries`に記録する。
+- 通知はアプリ内だけに保存し、メール配信は行わない。既存の`notification_deliveries`は廃止対象として移行を設計する。
