@@ -24,8 +24,10 @@ def sign_up() :
     if not disp_name :
         disp_name = username
     
-
-    if password != confirmation :
+    if not password :
+        common.flash("Please fill in the password.", "error")
+        return common.redirect(common.url_for("index") + "#signup") #expect bug
+    elif password != confirmation :
         common.flash("Passwords do not match. Please try again.", "error")
         return common.redirect(common.url_for("index") + "#signup") #expect bug
 
@@ -36,10 +38,16 @@ def sign_up() :
     params = ((username,disp_name,hashed_password))
     cursor.execute(query,params)
     conn.commit()
+    user_id = cursor.lastrowid
     cursor.close()
     conn.close()
-    # まだリターンしていない。Log inした状態ですすみたいけど、やり方まだわからない
-    # belum di return, blom selesai. return dengan account ter login
+    common.session['user_id'] = user_id
+    common.session['username'] = username
+    common.session['disp_name'] = disp_name
+
+    common.flash("Account created successfully!", "success")
+
+    return common.redirect(common.url_for("index"))
 
 def username_check(username) :
     conn = common.connect_sql()
@@ -50,26 +58,34 @@ def username_check(username) :
     result = cursor.fetchone()
     cursor.close()
     conn.close()
-    return result
+    value = False
+    if result :
+        value = True
+    return value
 
-@common.app.route('\log_in', methods=['POST'])
+@common.app.route('/log_in', methods=['POST'])
 def log_in() :
     username = common.request.form.get('username')
     password = common.request.form.get('password')
 
-    hashed_password = common.generate_password_hash(password)
-
     conn = common.connect_sql()
     cursor = conn.cursor()
-    query = 'SELECT username, password_hash FROM users WHERE username = %s'
+    query = 'SELECT id, username, disp_name, password_hash FROM users WHERE username = %s'
     params = (username,)
     cursor.execute(query,params)
     result = cursor.fetchone()
-    if not result :
-        common.flash("User not found", "error")
-        return common.redirect(common.url_for("index") + "#login") #Loginもダルへに飛ばす、フロントから対応、後で治す
-    if hashed_password != result[1] :
-        common.flash("wrong password", "error")
-        return common.redirect(common.url_for("index") + "#login") #Loginもダルへに飛ばす、フロントから対応、後で治す
+    cursor.close()
+    conn.close()
 
-    #これからloginさせる。やり方まだわかんない    
+    if (not result) or (not common.check_password_hash(result[3], password)) :
+        common.flash("Invalid username or Password", "error")
+        return common.redirect(common.url_for("index") + "#login") 
+
+    common.session['user_id'] = result[0]
+    common.session['username'] = result[1]
+    common.session['disp_name'] = result[2]
+
+    common.flash("Log in success!", "success")
+    
+    return common.redirect(common.url_for("index"))
+        
