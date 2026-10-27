@@ -1,5 +1,12 @@
 # ER図（Mermaid）
 
+2026/10/26更新：以下は**現行SQLの図**であり、最新製品要件を満たす移行後の図ではない。
+メール必須・メール配信・入札最大1件・作品最大1競売などは現行の制約であり、採用仕様ではない。
+[仕様決定事項](仕様決定事項-2026-10-26.md)と[DB設計書の差分](db設計.md)に従い、今後移行する。
+目標はユーザー名認証・メール不使用、1競売に複数入札、1作品に複数の競売履歴（同時開催最大1件）、1作品1配信。
+制作セッション・レイヤーZIP・復旧コード・非公開状態・返還／加算履歴・コメント監査も追加設計が必要。今回SQLは変更しない。
+
+
 [`DB-deploy/deploy.sql`](../DB-deploy/deploy.sql)の有効なテーブル定義・外部キー・一意制約をもとにしたHEW Ver0.5のER図です。詳細な型・デフォルト値・運用方針は[`db設計.md`](db設計.md)を参照してください。1作品に対するオークションは0〜1件、1オークションに対する入札も現行SQLの一意制約により0〜1件です。
 
 エンティティ名は図中で大文字に統一しています。実テーブル名は小文字・複数形のsnake_caseで、図中の`TAGS`は`tags`に対応します。`||`は必須の1件、`o|`は0〜1件、`o{`は0件以上を表します。属性の`UK`は単一カラムの一意制約を示し、複合一意制約は補足に記載します。数値型の`UNSIGNED`、NULL許可、ENUMの値、デフォルト値はDB設計書に記載します。
@@ -48,7 +55,7 @@ erDiagram
 
     ARTWORKS {
         bigint id PK
-        bigint seller_id FK
+        bigint artist_id FK
         varchar title
         text description
         varchar image_path
@@ -189,7 +196,7 @@ erDiagram
 - `bookmarks` は `user_id` と `auction_id` の組み合わせを一意にする。
 - `artwork_bookmarks` は `user_id` と `artwork_id` の組み合わせを一意にする。オークションと作品のお気に入りを混在させない。
 - `tags`と`artwork_tags`により、作品とタグを多対多で関連付ける。`artwork_tags`は`artwork_id`と`tag_id`の組み合わせを一意にする。
-- オークションの出品者は `auctions.artwork_id → artworks.seller_id` から取得し、`auctions` には保持しない。
+- オークションの出品者は `auctions.artwork_id → artworks.artist_id` から取得し、`auctions` には保持しない。
 - ポイントの即時減算・高値更新時の返却はアプリケーション側の運用方針である。現行SQLの`bids.auction_id`の一意制約では、複数入札を履歴として保存する運用と整合しない。
 - `auto_bid_settings` は `auction_id` と `user_id` の組み合わせを一意にする。
 - `payment_intents`の`provider`、`provider_intent_id`、`currency`はSQLでコメントアウトされており、図にも含めない。
