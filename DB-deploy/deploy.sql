@@ -22,7 +22,7 @@ CREATE TABLE artworks (
     title VARCHAR(200) NOT NULL,
     description TEXT NULL,
     image_path VARCHAR(500) NOT NULL,
-    draw_time ENUM('long','mid','long') NOT NULL,
+    draw_time ENUM('short','mid','long') NOT NULL,
     status ENUM('draft','listed','sold','cancelled') NOT NULL DEFAULT 'draft',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
