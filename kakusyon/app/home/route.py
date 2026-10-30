@@ -8,6 +8,15 @@ from kakusyon.app import common
 
 @common.app.route('/')
 def index() :
+    result = search()
+    # Log inチェック
+    user_id = common.session.get('user_id')
+    if user_id :
+        username = common.session.get('username')
+        disp_name = common.session.get('disp_name')
+        return common.render_template('index.html', result=result,log_in=True,username=username,disp_name=disp_name)
+    return common.render_template('index.html',result=result,log_in=False)
+def search() :
     # 検索機能
     search = common.request.args.get('search') #HTMLに検索バーに"search"のnameをつけてください
     filter = common.request.args.get('filter') #HTMLにタイムフィルターに"filter"のnameをつけてください
@@ -28,23 +37,19 @@ def index() :
         ON art.id = auc.artwork_id
     '''
     params = ()
-    if search or filter :
-        query += 'WHERE '
+    query += 'WHERE auc.end_time > NOW() '
     if search :
-        query += 'art.title LIKE %s OR user.disp_name LIKE %s \n'
+        query += 'AND \n(art.title LIKE %s OR user.disp_name LIKE %s)\n'
         params = (f'%{search}%',f'%{search}%')
-        if filter :
-            query += 'AND '
     if filter :
-        query += 'art.draw_time = %s'
-        params += {filter}
+        query += 'AND art.draw_time = %s'
+        params += (filter,)
 
-    query += 'ORDER BY remaining_time ASC'
+    query += ' ORDER BY remaining_time ASC'
     conn = common.connect_sql()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(query, params)
     result = cursor.fetchall()
     cursor.close()
     conn.close()
-
-    return common.render_template('index.html', result=result)
+    return result

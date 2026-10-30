@@ -7,9 +7,9 @@
 
 from . import common
 
-from .home import routes as home_routes
-from .artworks import routes as artworks_routes
-from .admin import routes as admin_routes
+from .home import routes as home_route
+from .artworks import routes as artworks_route
+from .admin import routes as admin_route
 from .auctions import routes as auctions_route
 from .comments import routes as comments_route
 from .favorites import routes as comments_route

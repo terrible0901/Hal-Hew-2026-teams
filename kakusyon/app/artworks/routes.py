@@ -17,27 +17,35 @@ def canvas() :
     time = common.request.args.get('time')
     theme = common.request.args.get('theme')
     mode = common.request.args.get('mode')
+    # match time
+    # common.session['draw_time'] = 
     return common.render_template('canvas.html', time=time, theme=theme, mode=mode)
 
 @common.app.route('/draw/complete')
 def complete() :
     return common.render_template('complete.html')
 
-# @app.route('/post_art')
-# def post_art() :
-#     title = request.args.get('title')
-#     artist = request.args.get('artist') #dummy. aslinya pake account info
-#     price = request.args.get('price')
-#     # img_path = 
+@common.app.route('/post_art', methods=['POST'])
+def post_art() :
+    title = common.request.form.get('title')
+    artist = common.session.get('username')
+    descript = common.request.form.get('description')
+    # price = common.request.args.get('price')
+    # まだ入れていないやつ
+    # price(auction), img_path
 
-    
+    query = "INSERT INTO artworks (title, artist, descript) VALUES(%s,%s,%s)"  
+    params = ((title,artist,descript)) 
+    conn = common.connect_sql()
+    cursor = conn.cursor()
+    cursor.execute(query,params)
+    conn.commit()
+    cursor.close()
+    conn.close()
 
-#     query = "INSERT INTO artworks (title, artist) value"   
-#     # TO DO 自分用ノート、気にしないで
-#     # dari website cuma ada artist name. V
-#     # cari artist ID di user table where artist_name == artist name dari web V
-#     # insert artist id dan title ke artworks V 
-#     # insert id, artist, price(start_price) ke auctions V
-#     # image path masih unknown. harus cari tau krn NOT NULL
-#     # current_price coba bikin default = start_price XXXX gk bisa
-#     # pahami log in, session
+    # まだリターンされてない
+
+
+    # TO DO 自分用ノート、気にしないで
+    # image path masih unknown. harus cari tau krn NOT NULL
+    # pahami log in, session
