@@ -30,12 +30,16 @@ def post_art() :
     title = common.request.form.get('title')
     artist = common.session.get('username')
     descript = common.request.form.get('description')
-    # price = common.request.args.get('price')
+    price = common.request.args.get('price')
+    end_time = common.request.args.get('end_time')
     # まだ入れていないやつ
-    # price(auction), img_path
+    # img_path
 
-    query = "INSERT INTO artworks (title, artist, descript) VALUES(%s,%s,%s)"  
-    params = ((title,artist,descript)) 
+    query = """
+    INSERT INTO artworks (title, artist, descript) VALUES(%s,%s,%s);\n
+    INSERT INTO auctions (start_price,current_price,end_time) VALUES(%s,%s,%s)
+    """  
+    params = ((title,artist,descript,price,price,end_time)) # 未完成 end_time
     conn = common.connect_sql()
     cursor = conn.cursor()
     cursor.execute(query,params)

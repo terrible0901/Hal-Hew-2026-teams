@@ -19,7 +19,6 @@ def index() :
 def search() :
     # 検索機能
     search = common.request.args.get('search') #HTMLに検索バーに"search"のnameをつけてください
-    filter = common.request.args.get('filter') #HTMLにタイムフィルターに"filter"のnameをつけてください
 
     query = '''
     SELECT 
@@ -41,11 +40,8 @@ def search() :
     if search :
         query += 'AND \n(art.title LIKE %s OR user.disp_name LIKE %s)\n'
         params = (f'%{search}%',f'%{search}%')
-    if filter :
-        query += 'AND art.draw_time = %s'
-        params += (filter,)
 
-    query += ' ORDER BY remaining_time ASC'
+    query += ' ORDER BY end_time ASC'
     conn = common.connect_sql()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(query, params)

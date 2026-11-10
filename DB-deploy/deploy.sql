@@ -40,7 +40,7 @@ CREATE TABLE auctions (
     artwork_id BIGINT UNSIGNED NOT NULL UNIQUE,
     start_price INT UNSIGNED NOT NULL,
     current_price INT UNSIGNED NOT NULL,
-    reserve_price INT UNSIGNED NULL,
+    -- reserve_price INT UNSIGNED NULL,
     status ENUM('active','ended','cancelled') NOT NULL DEFAULT 'active',
     start_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     end_time DATETIME NOT NULL,
