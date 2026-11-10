@@ -88,4 +88,12 @@ def log_in() :
     common.flash("Log in success!", "success")
     
     return common.redirect(common.url_for("index"))
+
+@common.app.route('/login_page')
+def login_page():
+    return common.render_template('login.html')
+
+@common.app.route('/signup_page')
+def signup_page():
+    return common.render_template('signup.html')
         

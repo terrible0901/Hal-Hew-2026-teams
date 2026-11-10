@@ -22,23 +22,24 @@ def search() :
 
     query = '''
     SELECT 
+        art.id,
         art.title,
-        user.disp_name AS artist_name,
+        usr.disp_name AS artist_name,
         auc.current_price,
         art.image_path,
         art.draw_time,
         auc.end_time,
         TIMEDIFF(auc.end_time, NOW()) AS remaining_time
     FROM artworks as art
-    JOIN users as user
-        ON art.artist_id = user.id
+    JOIN users as usr
+        ON art.artist_id = usr.id
     JOIN auctions AS auc
         ON art.id = auc.artwork_id
     '''
     params = ()
     query += 'WHERE auc.end_time > NOW() '
     if search :
-        query += 'AND \n(art.title LIKE %s OR user.disp_name LIKE %s)\n'
+        query += 'AND \n(art.title LIKE %s OR usr.disp_name LIKE %s)\n'
         params = (f'%{search}%',f'%{search}%')
 
     query += ' ORDER BY end_time ASC'
