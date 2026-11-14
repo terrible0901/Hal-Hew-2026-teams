@@ -5,9 +5,12 @@
 # 残高・ロック・返還・落札確定の具体的な処理は競売／取消サービスへ委ねる。
 # 詳細は「設計・要件/関数定義.md」と「設計・要件/仕様決定事項-2026-10-26.md」を参照。
 
+from kakusyon.app import common
+
+
 @common.app.route('/item_detail')
 def item_detail():
-    art_id = request.args.get('id')
+    art_id = common.request.args.get('id')
     query = '''
     SELECT
         art.id,
@@ -51,6 +54,5 @@ def post_bid():
     conn.commit()
     cursor.close()
     conn.close()
-    return redirect(url_for('index'))
-    # TO DO
-    # di index handle current bid buat logged user
+    return common.redirect(common.url_for('index'))
+    
