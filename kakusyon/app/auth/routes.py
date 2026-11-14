@@ -71,19 +71,18 @@ def log_in() :
     conn = common.connect_sql()
     cursor = conn.cursor()
     query = 'SELECT id, username, disp_name, password_hash FROM users WHERE username = %s'
-    params = (username,)
-    cursor.execute(query,params)
+    cursor.execute(query,(username,))
     result = cursor.fetchone()
     cursor.close()
     conn.close()
 
-    if (not result) or (not common.check_password_hash(result[3], password)) :
+    if (not result) or (not common.check_password_hash(result[3], password)) :  # pyright: ignore[reportArgumentType]
         common.flash("Invalid username or Password", "error")
         return common.redirect(common.url_for("index") + "#login") 
 
-    common.session['user_id'] = result[0]
-    common.session['username'] = result[1]
-    common.session['disp_name'] = result[2]
+    common.session['user_id'] = result[0]  # pyright: ignore[reportArgumentType]
+    common.session['username'] = result[1]  # pyright: ignore[reportArgumentType]
+    common.session['disp_name'] = result[2]  # pyright: ignore[reportArgumentType]
 
     common.flash("Log in success!", "success")
     

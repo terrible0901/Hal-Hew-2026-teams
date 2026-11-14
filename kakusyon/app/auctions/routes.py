@@ -5,6 +5,8 @@
 # 残高・ロック・返還・落札確定の具体的な処理は競売／取消サービスへ委ねる。
 # 詳細は「設計・要件/関数定義.md」と「設計・要件/仕様決定事項-2026-10-26.md」を参照。
 
+from flask import render_template
+
 from kakusyon.app import common
 
 
@@ -38,7 +40,7 @@ def item_detail():
     result = cursor.fetchone()
     cursor.close()
     conn.close()
-    return result
+    return render_template('auction_detail.html', result=result)
 
 
 @common.app.route('/post_bid', methods=['POST'])
