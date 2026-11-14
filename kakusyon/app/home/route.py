@@ -8,44 +8,66 @@ from kakusyon.app import common
 
 @common.app.route('/')
 def index() :
-    result = search()
+    search_result = search()
     # Log inチェック
     user_id = common.session.get('user_id')
     if user_id :
         username = common.session.get('username')
         disp_name = common.session.get('disp_name')
-        return common.render_template('index.html', result=result,log_in=True,username=username,disp_name=disp_name)
-    return common.render_template('index.html',result=result,log_in=False)
+
+        query = '''
+        SELECT
+            TIMEDIFF(auc.end_time, NOW()) AS remaining_time,
+            bids.auction_id,
+            art.image_path,
+            art.title
+        FROM bids
+        JOIN auctions AS auc
+            ON auc.id = bids.auction_id
+        JOIN artworks AS art
+            ON art.id = auc.artwork_id
+        WHERE bids.user_id = %s
+        '''
+
+        params = (user_id)
+        conn = common.connect_sql()
+        cursor= conn.cursor(dictionary=True)
+        cursor.execute(query,params)
+        user_bids = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+
+        return common.render_template('index.html', search_result=search_result,log_in=True,username=username,disp_name=disp_name,user_bids=user_bids)
+    return common.render_template('index.html',search_result=search_result,log_in=False)
 def search() :
     # 検索機能
     search = common.request.args.get('search') #HTMLに検索バーに"search"のnameをつけてください
-    filter = common.request.args.get('filter') #HTMLにタイムフィルターに"filter"のnameをつけてください
 
     query = '''
     SELECT 
+        art.id,
         art.title,
-        user.disp_name AS artist_name,
+        usr.disp_name AS artist_name,
         auc.current_price,
-        art.image_path,
+        art.image_path,# TO DO
+    # di index handle current bid buat logged user
         art.draw_time,
         auc.end_time,
         TIMEDIFF(auc.end_time, NOW()) AS remaining_time
     FROM artworks as art
-    JOIN users as user
-        ON art.artist_id = user.id
+    JOIN users as usr
+        ON art.artist_id = usr.id
     JOIN auctions AS auc
         ON art.id = auc.artwork_id
     '''
     params = ()
     query += 'WHERE auc.end_time > NOW() '
     if search :
-        query += 'AND \n(art.title LIKE %s OR user.disp_name LIKE %s)\n'
+        query += 'AND \n(art.title LIKE %s OR usr.disp_name LIKE %s)\n'
         params = (f'%{search}%',f'%{search}%')
-    if filter :
-        query += 'AND art.draw_time = %s'
-        params += (filter,)
 
-    query += ' ORDER BY remaining_time ASC'
+    query += ' ORDER BY end_time ASC'
     conn = common.connect_sql()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(query, params)

@@ -6,7 +6,10 @@
 # 描画・履歴復元はJavaScript、ファイル検証と業務処理はサービスへ分ける。
 # 詳細は「設計・要件/関数定義.md」と「設計・要件/仕様決定事項-2026-10-26.md」を参照。
 
+from flask import render_template, url_for,request,session
+
 from kakusyon.app import common
+from kakusyon.app.services.image_service import get_drawing
 
 @common.app.route('/draw/setup')
 def setup() :
@@ -14,28 +17,34 @@ def setup() :
 
 @common.app.route('/draw/canvas')
 def canvas() :
-    time = common.request.args.get('time')
-    theme = common.request.args.get('theme')
-    mode = common.request.args.get('mode')
+    time = request.args.get('time')
+    theme = request.args.get('theme')
+    mode = request.args.get('mode')
     # match time
     # common.session['draw_time'] = 
-    return common.render_template('canvas.html', time=time, theme=theme, mode=mode)
+    return render_template('canvas.html', time=time, theme=theme, mode=mode)
 
 @common.app.route('/draw/complete')
 def complete() :
-    return common.render_template('complete.html')
+    return render_template('complete.html')
 
 @common.app.route('/post_art', methods=['POST'])
 def post_art() :
-    title = common.request.form.get('title')
-    artist = common.session.get('username')
-    descript = common.request.form.get('description')
-    # price = common.request.args.get('price')
+    title = request.form.get('title')
+    artist = session.get('username')
+    descript = request.form.get('description')
+    price = request.args.get('price')
+    end_time = request.args.get('end_time')
+    
+    img_path = get_drawing()
     # まだ入れていないやつ
-    # price(auction), img_path
+    # img_path
 
-    query = "INSERT INTO artworks (title, artist, descript) VALUES(%s,%s,%s)"  
-    params = ((title,artist,descript)) 
+    query = """
+    INSERT INTO artworks (title, artist, descript) VALUES(%s,%s,%s);\n
+    INSERT INTO auctions (start_price,current_price,end_time) VALUES(%s,%s,%s)
+    """  
+    params = ((title,artist,descript,price,price,end_time)) # 未完成 end_time
     conn = common.connect_sql()
     cursor = conn.cursor()
     cursor.execute(query,params)
@@ -44,7 +53,7 @@ def post_art() :
     conn.close()
 
     # まだリターンされてない
-
+    return render_template(url_for('index'))
 
     # TO DO 自分用ノート、気にしないで
     # image path masih unknown. harus cari tau krn NOT NULL
