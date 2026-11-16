@@ -36,7 +36,7 @@ def post_art() :
     price = request.args.get('price')
     end_time = request.args.get('end_time')
     
-    img_path = get_drawing()
+    # img_path = get_drawing()
     # まだ入れていないやつ
     # img_path
 
