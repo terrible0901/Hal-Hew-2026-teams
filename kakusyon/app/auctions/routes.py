@@ -5,14 +5,14 @@
 # 残高・ロック・返還・落札確定の具体的な処理は競売／取消サービスへ委ねる。
 # 詳細は「設計・要件/関数定義.md」と「設計・要件/仕様決定事項-2026-10-26.md」を参照。
 
-from flask import render_template
+from flask import redirect, render_template, request, session, url_for
 
-from kakusyon.app import common
+from kakusyon.app.common import app,connect_sql
 
 
-@common.app.route('/item_detail')
+@app.route('/item_detail')
 def item_detail():
-    art_id = common.request.args.get('id')
+    art_id = request.args.get('id')
     query = '''
     SELECT
         art.id,
@@ -34,7 +34,7 @@ def item_detail():
     '''
 
     params = (art_id,)
-    conn = common.connect_sql()
+    conn = connect_sql()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(query,params)
     result = cursor.fetchone()
@@ -43,18 +43,18 @@ def item_detail():
     return render_template('auction_detail.html', result=result)
 
 
-@common.app.route('/post_bid', methods=['POST'])
+@app.route('/post_bid', methods=['POST'])
 def post_bid():
-    art_id = common.request.form.get('art_id')
-    bid_amount = common.request.form.get('bid_amount')
-    user_id = common.session.get('user_id')
+    art_id = request.form.get('art_id')
+    bid_amount = request.form.get('bid_amount')
+    user_id = session.get('user_id')
     query = 'INSERT INTO bids (auction_id,bidder_id,bid_amount) VALUES (%s,%s,%s)'
     params = (art_id,user_id,bid_amount)
-    conn = common.connect_sql()
+    conn = connect_sql()
     cursor = conn.cursor()
     cursor.execute(query,params)
     conn.commit()
     cursor.close()
     conn.close()
-    return common.redirect(common.url_for('index'))
+    return redirect(url_for('index'))
     
