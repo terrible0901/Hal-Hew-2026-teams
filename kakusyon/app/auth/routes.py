@@ -5,34 +5,37 @@
 # コードはハッシュ保存し、使用・再発行時に旧コードを無効化する。イベント終了後は新規登録不可。
 # 詳細は「設計・要件/関数定義.md」と「設計・要件/仕様決定事項-2026-10-26.md」を参照。
 
-from kakusyon.app import common
+from flask import flash, redirect, render_template, request, session, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
 
-@common.app.route('/sign_up', methods=['POST']) #signup
+from kakusyon.app.common import app,connect_sql
+
+@app.route('/sign_up', methods=['POST']) #signup
 def sign_up() :
     # email = request.args.get('email') #いる？要らない？
-    password = common.request.form.get('password')
-    confirmation = common.request.form.get('confirmation')
+    password = request.form.get('password')
+    confirmation = request.form.get('confirmation')
     # ユーザー名とディスプレイ名追加
-    username = common.request.form.get('username')
-    disp_name = common.request.form.get('display_name')
+    username = request.form.get('username')
+    disp_name = request.form.get('display_name')
 
     username_double = username_check(username)
     if username_double :
-        common.flash("Username already taken.","error")
-        return common.redirect(common.url_for("index") + "#signup") #expect bug
+        flash("Username already taken.","error")
+        return redirect(url_for("index") + "#signup") #expect bug
     
     if not disp_name :
         disp_name = username
     
     if not password :
-        common.flash("Please fill in the password.", "error")
-        return common.redirect(common.url_for("index") + "#signup") #expect bug
+        flash("Please fill in the password.", "error")
+        return redirect(url_for("index") + "#signup") #expect bug
     elif password != confirmation :
-        common.flash("Passwords do not match. Please try again.", "error")
-        return common.redirect(common.url_for("index") + "#signup") #expect bug
+        flash("Passwords do not match. Please try again.", "error")
+        return redirect(url_for("index") + "#signup") #expect bug
 
-    hashed_password = common.generate_password_hash(password)
-    conn = common.connect_sql()
+    hashed_password = generate_password_hash(password)
+    conn = connect_sql()
     cursor = conn.cursor()
     query = "INSERT INTO users (username, disp_name, password_hash) VALUES (%s,%s,%s)"
     params = ((username,disp_name,hashed_password))
@@ -41,16 +44,16 @@ def sign_up() :
     user_id = cursor.lastrowid
     cursor.close()
     conn.close()
-    common.session['user_id'] = user_id
-    common.session['username'] = username
-    common.session['disp_name'] = disp_name
+    session['user_id'] = user_id
+    session['username'] = username
+    session['disp_name'] = disp_name
 
-    common.flash("Account created successfully!", "success")
+    flash("Account created successfully!", "success")
 
-    return common.redirect(common.url_for("index"))
+    return redirect(url_for("index"))
 
 def username_check(username) :
-    conn = common.connect_sql()
+    conn = connect_sql()
     cursor = conn.cursor()
     query = "SELECT username FROM users where username = %s"
     params = (username,)
@@ -63,29 +66,36 @@ def username_check(username) :
         value = True
     return value
 
-@common.app.route('/log_in', methods=['POST'])
+@app.route('/log_in', methods=['POST'])
 def log_in() :
-    username = common.request.form.get('username')
-    password = common.request.form.get('password')
+    username = request.form.get('username')
+    password = request.form.get('password')
 
-    conn = common.connect_sql()
+    conn = connect_sql()
     cursor = conn.cursor()
     query = 'SELECT id, username, disp_name, password_hash FROM users WHERE username = %s'
-    params = (username,)
-    cursor.execute(query,params)
+    cursor.execute(query,(username,))
     result = cursor.fetchone()
     cursor.close()
     conn.close()
 
-    if (not result) or (not common.check_password_hash(result[3], password)) :
-        common.flash("Invalid username or Password", "error")
-        return common.redirect(common.url_for("index") + "#login") 
+    if (not result) or (not check_password_hash(result[3], password)) :  # pyright: ignore[reportArgumentType]
+        flash("Invalid username or Password", "error")
+        return redirect(url_for("index") + "#login") 
 
-    common.session['user_id'] = result[0]
-    common.session['username'] = result[1]
-    common.session['disp_name'] = result[2]
+    session['user_id'] = result[0]  # pyright: ignore[reportArgumentType]
+    session['username'] = result[1]  # pyright: ignore[reportArgumentType]
+    session['disp_name'] = result[2]  # pyright: ignore[reportArgumentType]
 
-    common.flash("Log in success!", "success")
+    flash("Log in success!", "success")
     
-    return common.redirect(common.url_for("index"))
+    return redirect(url_for("index"))
+
+@app.route('/login_page')
+def login_page():
+    return render_template('login.html')
+
+@app.route('/signup_page')
+def signup_page():
+    return render_template('signup.html')
         

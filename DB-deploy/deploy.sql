@@ -21,6 +21,7 @@ CREATE TABLE artworks (
     artist_id BIGINT UNSIGNED NOT NULL,
     title VARCHAR(200) NOT NULL,
     description TEXT NULL,
+    category ENUM('free','vehicle','animal','insect','plant','food','chara','domae') NOT NULL, -- 追加
     image_path VARCHAR(500) NOT NULL,
     draw_time ENUM('short','mid','long') NOT NULL,
     status ENUM('draft','listed','sold','cancelled') NOT NULL DEFAULT 'draft',
@@ -40,7 +41,7 @@ CREATE TABLE auctions (
     artwork_id BIGINT UNSIGNED NOT NULL UNIQUE,
     start_price INT UNSIGNED NOT NULL,
     current_price INT UNSIGNED NOT NULL,
-    reserve_price INT UNSIGNED NULL,
+    -- reserve_price INT UNSIGNED NULL,
     status ENUM('active','ended','cancelled') NOT NULL DEFAULT 'active',
     start_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     end_time DATETIME NOT NULL,
@@ -70,7 +71,7 @@ CREATE TABLE bids (
     bidder_id BIGINT UNSIGNED NOT NULL,
     bid_amount INT UNSIGNED NOT NULL,
     is_auto_bid BOOLEAN NOT NULL DEFAULT FALSE,
-    bid_status ENUM('accepted','rejected') NOT NULL,
+    bid_status ENUM('accepted','rejected') NOT NULL DEFAULT 'accepted', -- 基本的に入札OK　意見お願い
     -- --------------------------------------
     -- payment_intent_id BIGINT UNSIGNED NULL,
     -- --------------------------------------
