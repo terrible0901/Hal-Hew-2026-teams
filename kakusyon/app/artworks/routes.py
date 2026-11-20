@@ -17,10 +17,13 @@ def setup() :
 
 @app.route('/draw/canvas')
 def canvas() :
-    time = request.args.get('time')
+    draw_time = request.args.get('time')
     theme = request.args.get('theme')
-    mode = request.args.get('mode')
-    return render_template('canvas.html', time=time, theme=theme, mode=mode)
+    draw_mode = request.args.get('mode')
+    session['theme'] = theme
+    session['draw_time'] = draw_time
+    session['draw_mode'] = draw_mode
+    return render_template('canvas.html')
 
 @app.route('/draw/complete')
 def complete() :
@@ -32,6 +35,8 @@ def post_art() :
     artist = session.get('username')
     descript = request.form.get('description')
     price = request.args.get('price')
+    category = session.get('theme')
+    draw_time = session.get('draw_time')
     end_time = request.args.get('end_time')
     
     file = request.files.get("image")
@@ -42,9 +47,16 @@ def post_art() :
     conn = connect_sql()
     cursor = conn.cursor()
     try :
-        cursor.execute('INSERT INTO artworks (title, artist, descript,image_path) VALUES(%s,%s,%s,%s)',(title,artist,descript,img_path))
+        cursor.execute('SELECT id FROM users WHERE username = %s',(artist,))
+        row = cursor.fetchone()
+        artist_id = None
+        if row :
+            artist_id = int(row[0])  # pyright: ignore[reportArgumentType]
+
+        cursor.execute('INSERT INTO artworks (title, artist_id, description,image_path,category,draw_time) VALUES(%s,%s,%s,%s,%s,%s)',(title,artist_id,descript,img_path,category,draw_time))
         artwork_id=cursor.lastrowid
-        cursor.execute('INSERT INTO auctions (start_price,current_price,end_time) VALUES(%s,%s,%s,%s)',(artwork_id,price,price,end_time))
+        cursor.execute('INSERT INTO auctions (artwork_id,start_price,current_price,end_time) VALUES(%s,%s,%s,%s)',(artwork_id,price,price,end_time))
+
     except Exception :
         conn.rollback()
         return jsonify(error='db error'),500

@@ -38,7 +38,7 @@ CREATE TABLE artworks (
 
 CREATE TABLE auctions (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    artwork_id BIGINT UNSIGNED NOT NULL UNIQUE,
+    artwork_id BIGINT UNSIGNED NOT NULL, -- not unique
     start_price INT UNSIGNED NOT NULL,
     current_price INT UNSIGNED NOT NULL,
     -- reserve_price INT UNSIGNED NULL,
@@ -67,7 +67,7 @@ CREATE TABLE auctions (
     
 CREATE TABLE bids (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    auction_id BIGINT UNSIGNED NOT NULL UNIQUE,
+    auction_id BIGINT UNSIGNED NOT NULL, -- not unique
     bidder_id BIGINT UNSIGNED NOT NULL,
     bid_amount INT UNSIGNED NOT NULL,
     is_auto_bid BOOLEAN NOT NULL DEFAULT FALSE,
