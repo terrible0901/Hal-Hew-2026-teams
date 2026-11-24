@@ -6,7 +6,7 @@
 
 from flask import render_template, request, session
 
-from kakusyon.app.common import app, connect_sql
+from app.common import app, connect_sql
 
 @app.route('/')
 def index() :

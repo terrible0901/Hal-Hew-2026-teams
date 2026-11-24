@@ -7,7 +7,7 @@
 
 from flask import redirect, render_template, request, session, url_for
 
-from kakusyon.app.common import app,connect_sql
+from app.common import app,connect_sql
 
 
 @app.route('/item_detail')

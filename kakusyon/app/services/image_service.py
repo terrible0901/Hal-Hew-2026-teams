@@ -6,7 +6,7 @@
 
 import os, uuid
 from flask import jsonify, request, send_from_directory
-from kakusyon.app.common import app
+from app.common import app
 
 app.config["MAX_CONTENT_LENGTH"] = 5*1024*1024 
 UPLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "art")

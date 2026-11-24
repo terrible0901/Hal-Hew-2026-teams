@@ -8,7 +8,7 @@
 from flask import flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from kakusyon.app.common import app,connect_sql
+from app.common import app,connect_sql
 
 @app.route('/sign_up', methods=['POST']) #signup
 def sign_up() :

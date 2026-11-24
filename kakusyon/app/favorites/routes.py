@@ -6,7 +6,7 @@
 
 from flask import redirect, request, session, url_for
 
-from kakusyon.app import common
+from app import common
 
 
 @common.app.route('/favorite',methods=['POST'])

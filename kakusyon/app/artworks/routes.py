@@ -8,8 +8,8 @@
 
 from flask import jsonify, redirect, render_template, url_for,request,session
 
-from kakusyon.app.common import app,connect_sql
-from kakusyon.app.services.image_service import save_image
+from app.common import app,connect_sql
+from app.services.image_service import save_image
 
 @app.route('/draw/setup')
 def setup() :
