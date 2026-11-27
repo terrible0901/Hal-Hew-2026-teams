@@ -76,15 +76,16 @@
             </svg>
             お絵描きの設定
           </h1>
-          <div class="setup-mode-current">
-            <span id="setup-mode-label">通常モード</span>
-            <button
-              id="setup-change-mode"
-              type="button"
-            >
-              モードを変更
-            </button>
-          </div>
+          <fieldset class="setup-mode-current" aria-label="描画モード">
+            <label class="setup-mode-option">
+              <input id="setup-mode-normal" type="radio" name="drawing-mode" value="normal">
+              <span>通常モード</span>
+            </label>
+            <label class="setup-mode-option">
+              <input id="setup-mode-pro" type="radio" name="drawing-mode" value="pro">
+              <span>プロモード</span>
+            </label>
+          </fieldset>
 
           <fieldset class="setup-fieldset">
             <legend>

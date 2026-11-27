@@ -179,61 +179,51 @@
 
 
 .setup-mode-current {
-
   display: grid;
-
   grid-template-columns: repeat(2, minmax(0, 1fr));
-
   gap: 10px;
-
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
   text-align: center;
-
   font-size: 14px;
-
   font-weight: 800;
 }
 
-
-.setup-mode-current span,
-.setup-mode-current button {
-
-  display: grid;
-
-  place-items: center;
-
-  min-height: 40px;
-
+.setup-mode-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  min-width: 0;
   border: 1px solid #b7cfca;
-
   border-radius: 8px;
-
-  padding: 6px;
-}
-
-
-.setup-mode-current span {
-
+  padding: 8px 12px;
   background: #e7f4f1;
-}
-
-
-.setup-mode-current button {
-
-  border-color: #176378;
-
-  background: #176378;
-
-  color: white;
-
   cursor: pointer;
 }
 
-
-.setup-mode-current button:hover {
-
-  background: #124e60;
+.setup-mode-option input {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: #176378;
+  cursor: pointer;
 }
 
+.setup-mode-option:has(input:checked) {
+  border-color: #176378;
+  background: #176378;
+  color: white;
+}
+
+.setup-mode-option:has(input:focus-visible) {
+  outline: 3px solid #e8b61f;
+  outline-offset: 3px;
+}
 
 .setup-mode-dialog {
 

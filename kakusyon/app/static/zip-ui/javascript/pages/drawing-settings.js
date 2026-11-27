@@ -30,7 +30,7 @@ const modeDialog = document.querySelector("#setup-mode-dialog");
 
 
 
-const modeLabel = document.querySelector("#setup-mode-label");
+const modeInputs = document.querySelectorAll('input[name="drawing-mode"]');
 
 
 
@@ -129,7 +129,9 @@ function renderSelection() {
 
 
 
-  modeLabel.textContent = mode === "pro" ? "プロモード" : "通常モード";
+  for (const input of modeInputs) {
+    input.checked = input.value === mode;
+  }
 
 
 
@@ -137,26 +139,6 @@ function renderSelection() {
 
 }
 
-
-
-
-function openModeSelection() {
-
-  mode = null;
-
-
-
-  renderSelection();
-
-
-
-  if (!modeDialog.open) {
-
-    modeDialog.showModal();
-
-  }
-
-}
 
 
 
@@ -266,15 +248,12 @@ for (const button of modeDialog.querySelectorAll("[data-mode]")) {
 
 
 
-document
-
-
-
-  .querySelector("#setup-change-mode")
-
-
-
-  .addEventListener("click", openModeSelection);
+for (const input of modeInputs) {
+  input.addEventListener("change", () => {
+    mode = input.value;
+    renderSelection();
+  });
+}
 
 
 
@@ -337,7 +316,4 @@ startButton.addEventListener("click", () => {
 
 
 renderSelection();
-
-
-
-openModeSelection();
+modeDialog.showModal();
