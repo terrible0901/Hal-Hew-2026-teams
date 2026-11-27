@@ -6,17 +6,17 @@
 
 from flask import redirect, request, session, url_for
 
-from app import common
+from app.common import app, connect_sql
 
 
-@common.app.route('/favorite',methods=['POST'])
+@app.route('/favorite',methods=['POST'])
 def favorite():
     user_id = session.get('user_id')
     art_id = request.form.get('art_id')
 
     query = 'INSERT INTO bookmarks (user_id,auction_id) VALUES (%s,%s)'
     params = (user_id,art_id)
-    conn = common.connect_sql()
+    conn = connect_sql()
     cursor = conn.cursor()
     cursor.execute(query,params)
     conn.commit()
