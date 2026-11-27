@@ -1,0 +1,12 @@
+{% set auth_page = true %}
+{% extends 'layout.html' %}
+{% block content %}
+<div class="auth-content">
+    <p class="breadcrumb"><a href="{{ url_for('index') }}">ホーム</a> / {{ page_title }}</p>
+    <h1>{{ page_title }}</h1>
+    <section class="auth-card" aria-labelledby="auth-title">
+        {% block auth_form %}{% endblock %}
+    </section>
+</div>
+<script defer src="{{ url_for('static', filename='js/password-toggle.js') }}"></script>
+{% endblock %}

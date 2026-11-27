@@ -1,20 +1,24 @@
-<!-- 下記のフォームはデバギング用です。
- action,method,nameは同じように書いてください。 -->
-
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>sign up</title>
-</head>
-<body>
-    <form action="/sign_up" method="post">
-        <input type="text" name="display_name" id="">
-        <input type="text" name="username" id="">
-        <input type="password" name="password">
-        <input type="password" name="confirmation" id="">
-        <input type="submit">
-    </form>
-</body>
-</html>
+{% set page_title = '新規登録' %}
+{% extends 'auth_layout.html' %}
+{% block auth_form %}
+<h2 id="auth-title">アカウントを作成</h2>
+<p class="intro">表示名とユーザー名を登録してください。</p>
+<form class="auth-form" action="{{ url_for('sign_up') }}" method="post">
+    <label for="display_name">表示名 <small>任意</small></label>
+    <input id="display_name" name="display_name" autocomplete="nickname" placeholder="表示名を入力" maxlength="50">
+    <label for="username">ユーザー名</label>
+    <input id="username" name="username" autocomplete="username" placeholder="ユーザー名を入力" maxlength="20" required>
+    <label for="password">パスワード</label>
+    <div class="password-field">
+        <input id="password" type="password" name="password" autocomplete="new-password" placeholder="パスワードを入力" required>
+        <button type="button" class="password-toggle" aria-controls="password" aria-label="パスワードを表示" aria-pressed="false">◉</button>
+    </div>
+    <label for="confirmation">パスワード（確認）</label>
+    <div class="password-field">
+        <input id="confirmation" type="password" name="confirmation" autocomplete="new-password" placeholder="もう一度入力" required>
+        <button type="button" class="password-toggle" aria-controls="confirmation" aria-label="パスワードを表示" aria-pressed="false">◉</button>
+    </div>
+    <button type="submit" class="button primary">登録する</button>
+</form>
+<p class="auth-switch">アカウントをお持ちの方 <a href="{{ url_for('login_page') }}">ログイン</a></p>
+{% endblock %}
