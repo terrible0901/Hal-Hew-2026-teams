@@ -1,0 +1,1188 @@
+
+
+
+
+
+
+
+.draw-mobile-status-bar,
+.draw-mobile-navigation,
+.draw-mobile-panel-heading {
+
+  display: none;
+}
+
+
+
+
+
+.draw-mobile.draw-shell {
+
+  grid-template-rows: auto minmax(0, 1fr) auto;
+
+  padding-top: env(safe-area-inset-top);
+}
+
+
+.draw-mobile .draw-desktop-header {
+
+  display: none;
+}
+
+
+.draw-mobile .draw-mobile-status-bar {
+
+  position: relative;
+
+  z-index: 20;
+
+  display: grid;
+
+  grid-template-columns: 32px minmax(0, 1fr) 88px 54px;
+
+  align-items: center;
+
+  gap: 6px;
+
+  min-height: 56px;
+
+  padding: 4px max(8px, env(safe-area-inset-right)) 4px
+    max(8px, env(safe-area-inset-left));
+
+  background: #fffffff2;
+
+  border-bottom: 1px solid #bdcec7;
+
+  touch-action: pan-y;
+}
+
+
+.draw-mobile-home img {
+
+  width: 28px;
+
+  height: 34px;
+
+  object-fit: contain;
+}
+
+
+.draw-mobile-topic {
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  text-align: center;
+
+  line-height: 1.4;
+
+  overflow-wrap: anywhere;
+}
+
+
+.draw-mobile-clock {
+
+  padding: 4px;
+
+  text-align: center;
+
+  border-radius: 7px;
+
+  color: white;
+
+  background: #183c48;
+}
+
+
+.draw-mobile-clock span {
+
+  display: block;
+
+  font-size: 9px;
+}
+
+
+.draw-mobile-clock strong {
+
+  display: block;
+
+  font-size: 22px;
+
+  line-height: 1.1;
+
+  font-variant-numeric: tabular-nums;
+}
+
+
+.draw-mobile-clock.draw-timer-urgent {
+
+  background: #a12c39;
+}
+
+
+
+
+
+.draw-mobile-finish {
+
+  min-width: 0;
+
+  min-height: 44px;
+
+  border: 1px solid #16786c;
+
+  border-radius: 8px;
+
+  padding: 5px;
+
+  background: #e4f5ee;
+
+  color: #175c56;
+
+  font-size: 13px;
+
+  font-weight: 800;
+}
+
+
+
+
+
+.draw-mobile .draw-mobile-navigation {
+
+  position: relative;
+
+  z-index: 20;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  padding: 0 max(0px, env(safe-area-inset-right))
+    env(safe-area-inset-bottom) max(0px, env(safe-area-inset-left));
+
+  border-top: 1px solid #bdcec7;
+
+  background: #fffffff2;
+
+  touch-action: pan-y;
+}
+
+
+.draw-mobile-navigation > button {
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 8px;
+
+  min-height: 60px;
+
+  padding: 8px 4px;
+
+  color: #214f5c;
+
+  font-size: 15px;
+
+  font-weight: 800;
+}
+
+
+.draw-mobile-navigation > button + button {
+
+  border-left: 1px solid #d4dfd7;
+}
+
+
+
+
+
+
+.draw-mobile:not(.draw-pro) .draw-mobile-navigation {
+
+  grid-template-columns: minmax(0, 1fr);
+}
+
+
+.draw-mobile:not(.draw-pro) [data-panel-button="layers"] {
+
+  display: none;
+}
+
+
+.draw-mobile-navigation > button[aria-pressed="true"] {
+
+  background: #dff5ed;
+
+  box-shadow: inset 0 3px #16786c;
+}
+
+
+.draw-mobile-navigation svg {
+
+  flex-shrink: 0;
+
+  width: 21px;
+
+  height: 21px;
+}
+
+
+
+
+
+.draw-mobile .draw-workspace,
+.draw-mobile.draw-pro .draw-workspace {
+
+  display: block;
+
+  min-height: 0;
+
+  max-width: none;
+
+  padding: 8px max(8px, env(safe-area-inset-right)) 8px
+    max(8px, env(safe-area-inset-left));
+
+  overflow: hidden;
+}
+
+
+.draw-mobile .draw-stage {
+
+  width: 100%;
+
+  height: 100%;
+
+  min-height: 0;
+}
+
+
+.draw-mobile .draw-frame {
+
+  border-width: 10px;
+
+  padding: 5px;
+}
+
+
+.draw-mobile .draw-tools,
+.draw-mobile .draw-controls {
+
+  display: none;
+}
+
+
+.draw-mobile[data-panel="tools"] .draw-stage,
+.draw-mobile[data-panel="layers"] .draw-stage {
+
+  display: none;
+}
+
+
+.draw-mobile[data-panel="tools"] .draw-tools,
+.draw-mobile[data-panel="layers"] .draw-controls {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+
+  width: min(100%, 540px);
+
+  height: 100%;
+
+  min-height: 0;
+
+  max-height: none;
+
+  margin: auto;
+
+  padding: 10px;
+
+  overflow: hidden;
+
+  border-radius: 12px;
+}
+
+
+.draw-mobile[data-panel="tools"] .draw-mobile-panel-heading,
+.draw-mobile[data-panel="layers"] .draw-mobile-panel-heading {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 0 10px;
+
+  background: #f4fbf7;
+
+  z-index: 20;
+}
+
+
+.draw-mobile[data-panel="tools"],
+.draw-mobile[data-panel="layers"] {
+
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+
+
+.draw-mobile-panel-heading button {
+
+  min-height: 36px;
+
+  font-size: 13px;
+
+  font-weight: 800;
+}
+
+
+.draw-mobile-panel-heading span {
+
+  font-size: 10px;
+
+  color: #526b72;
+}
+
+
+
+
+
+
+.draw-mobile .pro-tools-body {
+
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+
+  flex: 1;
+
+  gap: 6px 8px;
+
+  min-height: 0;
+
+  padding: 0;
+}
+
+
+.draw-mobile .pro-pen-group {
+
+  grid-column: 1;
+
+  grid-row: 1;
+}
+
+
+.draw-mobile .pro-width-group {
+
+  grid-column: 1;
+
+  grid-row: 2;
+}
+
+
+.draw-mobile .draw-edit-slot {
+
+  grid-column: 1;
+
+  grid-row: 3;
+}
+
+
+.draw-mobile .pro-diffusion-group {
+
+  grid-column: 1;
+
+  grid-row: 4;
+}
+
+
+.draw-mobile .pro-ink-kind-group {
+
+  grid-column: 2;
+
+  grid-row: 1;
+
+  align-self: start;
+}
+
+
+.draw-mobile .pro-amount-group {
+
+  grid-column: 2;
+
+  grid-row: 2;
+
+  align-self: start;
+}
+
+
+.draw-mobile .pro-color-group {
+
+  grid-column: 2;
+
+  grid-row: 3 / span 2;
+}
+
+
+.draw-mobile .pro-group legend,
+.draw-mobile .pro-group h2,
+.draw-mobile .pro-slider-label {
+
+  font-size: 12px;
+}
+
+
+.draw-mobile .pro-choice-grid button,
+.draw-mobile .pro-width-grid button,
+.draw-mobile .pro-ink-choices button {
+
+  padding-inline: 2px;
+
+  font-size: 12px;
+}
+
+
+.draw-mobile .pro-ink-choices strong {
+
+  font-size: 12px;
+}
+
+
+.draw-mobile .pro-amount-group .pro-slider-label {
+
+  flex-wrap: wrap;
+
+  gap: 2px;
+}
+
+
+.draw-mobile .pro-choice-grid button,
+.draw-mobile .pro-width-grid button,
+.draw-mobile .pro-ink-choices button {
+
+  min-height: 40px;
+}
+
+
+.draw-mobile .pro-width-grid button {
+
+  min-height: 44px;
+}
+
+
+.draw-mobile .pro-color-field {
+
+  min-height: 40px;
+}
+
+
+.draw-mobile .pro-color-group {
+
+  flex: 1;
+}
+
+
+.draw-mobile .pro-color-picker {
+
+  padding-bottom: 0;
+}
+
+
+.draw-mobile .pro-tool-note,
+.draw-mobile .pro-ink-choices button span {
+
+  display: none;
+}
+
+
+.draw-mobile .draw-tool-actions,
+.draw-mobile.draw-pro .draw-tool-actions {
+
+  flex-shrink: 0;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  margin-top: 0;
+}
+
+
+.draw-mobile .draw-tool-button {
+
+  min-height: 40px;
+
+  padding: 6px;
+}
+
+
+.draw-mobile .draw-palette {
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  gap: 14px;
+
+  padding-block: 8px;
+}
+
+
+.draw-mobile .draw-color {
+
+  width: 44px;
+
+  height: 44px;
+}
+
+
+.draw-mobile .draw-tools-title {
+
+  display: block;
+
+  margin: 0;
+}
+
+
+.draw-mobile .draw-status {
+
+  display: none;
+}
+
+
+.draw-mobile .draw-session-actions,
+.draw-mobile.draw-pro .draw-session-actions {
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 8px;
+
+  padding: 0;
+}
+
+
+
+
+
+
+.draw-mobile .draw-session-actions > .draw-retire,
+.draw-mobile .draw-session-actions > .draw-finish {
+
+  display: none;
+}
+
+
+.draw-mobile .pro-layers {
+
+  grid-column: 1 / -1;
+}
+
+
+.draw-mobile .pro-layers summary {
+
+  padding: 8px;
+
+  cursor: default;
+}
+
+
+.draw-mobile .pro-layers summary::after {
+
+  display: none;
+}
+
+
+.draw-mobile .pro-layers-body > p {
+
+  display: block;
+}
+
+
+.draw-mobile .pro-layer-row > button,
+.draw-mobile .pro-layer-actions button {
+
+  min-height: 40px;
+}
+
+
+.draw-mobile-navigation button:focus-visible,
+.draw-mobile-panel-heading button:focus-visible,
+.draw-mobile-finish:focus-visible {
+
+  outline: 3px solid #176378;
+
+  outline-offset: -3px;
+}
+
+
+
+
+
+@media (max-height: 650px) {
+
+  .draw-mobile .draw-mobile-status-bar {
+
+    min-height: 48px;
+  }
+
+  .draw-mobile-navigation > button {
+
+    min-height: 48px;
+
+    padding-block: 5px;
+  }
+
+  .draw-mobile .draw-workspace {
+
+    padding-block: 5px;
+  }
+
+  .draw-mobile[data-panel="tools"] .draw-tools,
+  .draw-mobile[data-panel="layers"] .draw-controls {
+
+    padding: 8px;
+
+    gap: 6px;
+  }
+
+  .draw-mobile .pro-tools-body {
+
+    gap: 4px;
+  }
+
+  .draw-mobile .draw-pro-settings {
+
+    gap: 4px;
+  }
+
+  .draw-mobile .pro-group legend,
+  .draw-mobile .pro-group h2 {
+
+    margin-bottom: 2px;
+
+    font-size: 12px;
+
+    line-height: 1.25;
+  }
+
+  .draw-mobile .pro-pen-grid button {
+
+    min-height: 36px;
+
+    padding: 4px;
+  }
+
+  .draw-mobile .pro-width-grid button {
+
+    min-height: 38px;
+
+    padding: 3px;
+  }
+
+  .draw-mobile .pro-choice-grid,
+  .draw-mobile .pro-ink-choices {
+
+    gap: 4px;
+  }
+
+
+
+  .draw-mobile .pro-ink-choices {
+
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .draw-mobile .pro-ink-choices button,
+  .draw-mobile .pro-ink-kind-group button {
+
+    min-height: 28px;
+
+    padding: 3px;
+
+    font-size: 12px;
+
+    line-height: 1.25;
+  }
+
+  .draw-mobile .pro-slider-label {
+
+    margin-bottom: 2px;
+
+    font-size: 12px;
+
+    line-height: 1.25;
+  }
+
+  .draw-mobile .draw-range {
+
+    height: 22px;
+  }
+
+  .draw-mobile .pro-color-picker .pro-slider-label {
+
+    margin-top: 3px;
+
+    margin-bottom: 0;
+
+    font-size: 11px;
+  }
+
+  .draw-mobile .pro-hue-slider {
+
+    height: 20px;
+  }
+
+
+
+  .draw-mobile[data-panel="layers"] .draw-session-actions {
+
+    flex-shrink: 0;
+
+    align-content: start;
+
+    row-gap: 6px;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layers-body {
+
+    display: grid;
+
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+    align-items: start;
+
+    gap: 6px 8px;
+
+    padding: 0 6px 6px;
+  }
+
+
+
+  .draw-mobile[data-panel="layers"] .pro-layers-body > p:first-child {
+
+    display: none;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layer-list {
+
+    grid-column: 1;
+
+    grid-row: 1 / span 3;
+
+    min-width: 0;
+
+    gap: 4px;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layer-opacity,
+  .draw-mobile[data-panel="layers"] .pro-layer-actions {
+
+    grid-column: 2;
+
+    min-width: 0;
+
+    margin-top: 0;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layer-opacity {
+
+    grid-row: 1;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layer-opacity .pro-slider-label {
+
+    gap: 4px;
+
+    font-size: 10px;
+
+    line-height: 1.35;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layer-row > button {
+
+    min-width: 0;
+
+    min-height: 32px;
+
+    gap: 3px;
+
+    padding: 2px 3px;
+
+    font-size: 11px;
+
+    line-height: 1.2;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layer-row > button:last-child {
+
+    flex-shrink: 0;
+
+    width: 26px;
+
+    padding: 2px;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layer-grip {
+
+    width: 10px;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layer-thumb {
+
+    width: 18px;
+
+    height: 18px;
+
+    font-size: 10px;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layer-actions button {
+
+    min-height: 34px;
+
+    gap: 2px;
+
+    padding: 3px;
+
+    font-size: 12px;
+
+    line-height: 1.25;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layers summary {
+
+    padding: 4px 6px;
+
+    font-size: 12px;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layer-warning {
+
+    grid-column: 1 / -1;
+
+    grid-row: 4;
+
+    margin: 0;
+
+    font-size: 11px;
+
+    line-height: 1.35;
+  }
+}
+
+
+
+
+
+@media (orientation: landscape) and (max-height: 450px) {
+
+  .draw-mobile .draw-mobile-status-bar {
+
+    min-height: 40px;
+
+    padding-block: 2px;
+  }
+
+  .draw-mobile-clock span,
+  .draw-mobile-panel-heading span {
+
+    display: none;
+  }
+
+  .draw-mobile-navigation > button {
+
+    min-height: 40px;
+
+    padding-block: 2px;
+
+    font-size: 13px;
+  }
+
+  .draw-mobile-panel-heading button {
+
+    min-height: 28px;
+  }
+
+  .draw-mobile .draw-workspace {
+
+    padding-block: 3px;
+  }
+
+  .draw-mobile .draw-frame {
+
+    border-width: 7px;
+
+    padding: 3px;
+  }
+
+  .draw-mobile[data-panel="tools"] .draw-tools,
+  .draw-mobile[data-panel="layers"] .draw-controls {
+
+    width: 100%;
+
+    padding: 5px 8px;
+
+    gap: 4px;
+  }
+
+  .draw-mobile .pro-tools-body {
+
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    grid-template-rows: auto auto minmax(0, 1fr);
+
+    gap: 2px 8px;
+
+    align-content: start;
+  }
+
+
+
+  .draw-mobile .pro-pen-group {
+
+    grid-column: 1;
+
+    grid-row: 1 / span 2;
+  }
+
+  .draw-mobile .pro-width-group {
+
+    grid-column: 2;
+
+    grid-row: 1;
+  }
+
+  .draw-mobile .draw-edit-slot {
+
+    grid-column: 1;
+
+    grid-row: 3;
+  }
+
+  .draw-mobile .pro-group legend,
+  .draw-mobile .pro-group h2 {
+
+    margin-bottom: 1px;
+
+    font-size: 11px;
+
+    line-height: 1.1;
+  }
+
+  .draw-mobile .pro-pen-grid {
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .draw-mobile .pro-choice-grid button,
+  .draw-mobile .pro-ink-choices button,
+  .draw-mobile .draw-tool-button {
+
+    min-height: 24px;
+
+    padding: 2px;
+
+    font-size: 11px;
+  }
+
+  .draw-mobile .pro-ink-choices {
+
+    grid-template-columns: minmax(0, 1fr);
+
+    gap: 2px;
+  }
+
+  .draw-mobile .pro-ink-choices button {
+
+    min-height: 22px;
+
+    padding-block: 1px;
+  }
+
+  .draw-mobile .pro-ink-choices strong {
+
+    font-size: 11px;
+
+    line-height: 1.1;
+  }
+
+  .draw-mobile .pro-diffusion-group {
+
+    grid-column: 2;
+
+    grid-row: 2;
+  }
+
+  .draw-mobile .pro-ink-kind-group {
+
+    grid-column: 3;
+
+    grid-row: 1;
+  }
+
+  .draw-mobile .pro-amount-group {
+
+    grid-column: 2;
+
+    grid-row: 3;
+  }
+
+  .draw-mobile .pro-color-group {
+
+    grid-column: 3;
+
+    grid-row: 2 / span 2;
+  }
+
+  .draw-mobile .pro-width-grid button {
+
+    min-height: 28px;
+
+    gap: 1px;
+
+    padding: 1px;
+
+    font-size: 11px;
+  }
+
+
+
+  .draw-mobile .pro-width-grid [data-width-preview] {
+
+    max-width: 10px;
+
+    max-height: 10px;
+  }
+
+  .draw-mobile .pro-amount-group .pro-slider-label {
+
+    flex-wrap: nowrap;
+
+    margin-bottom: 1px;
+
+    font-size: 10px;
+
+    line-height: 1;
+  }
+
+  .draw-mobile .draw-range {
+
+    height: 20px;
+  }
+
+  .draw-mobile .pro-color-field {
+
+    min-height: 28px;
+  }
+
+  .draw-mobile .pro-color-picker {
+
+    min-height: 0;
+  }
+
+  .draw-mobile .pro-color-picker .pro-slider-label {
+
+    margin-top: 0;
+
+    margin-bottom: 1px;
+
+    font-size: 10px;
+
+    line-height: 1.1;
+  }
+
+  .draw-mobile .draw-palette {
+
+    grid-template-columns: repeat(6, 1fr);
+
+    gap: 6px;
+
+    padding-block: 0;
+  }
+
+  .draw-mobile .draw-color {
+
+    width: 36px;
+
+    height: 36px;
+  }
+
+  .draw-mobile .draw-tool-actions {
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 6px;
+  }
+
+  .draw-mobile.draw-pro .draw-tool-actions {
+
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layers summary {
+
+    padding: 2px 8px;
+
+    font-size: 12px;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layers-body {
+
+    gap: 4px 10px;
+
+    padding-bottom: 4px;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layer-list {
+
+    gap: 3px;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layer-row > button {
+
+    min-height: 24px;
+
+    padding-block: 0;
+
+    font-size: 12px;
+  }
+
+
+
+  .draw-mobile[data-panel="layers"] .draw-session-actions {
+
+    grid-template-columns: minmax(0, 1fr);
+
+    align-items: start;
+
+    gap: 4px;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layers {
+
+    grid-column: 1;
+
+    grid-row: 1;
+  }
+
+  .draw-mobile[data-panel="layers"] .pro-layer-actions button {
+
+    min-height: 28px;
+
+    padding: 2px;
+
+    font-size: 12px;
+  }
+}

@@ -3,6 +3,7 @@
 {% block auth_form %}
 <h2 id="auth-title">アカウントを作成</h2>
 <p class="intro">表示名とユーザー名を登録してください。</p>
+{% include 'flash_messages.html' %}
 <form class="auth-form" action="{{ url_for('sign_up') }}" method="post">
     <label for="display_name">表示名 <small>任意</small></label>
     <input id="display_name" name="display_name" autocomplete="nickname" placeholder="表示名を入力" maxlength="50">

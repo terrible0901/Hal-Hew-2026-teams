@@ -1,0 +1,271 @@
+
+
+
+
+.artwork-card-shell {
+
+  position: relative;
+
+  display: block;
+
+  min-width: 0;
+
+  overflow: hidden;
+
+  border: 1px solid #d2dfd9;
+
+  border-radius: 6px;
+
+  background: #eff5f2;
+}
+
+
+.artwork-card {
+
+  position: relative;
+
+  display: block;
+
+  min-width: 0;
+
+
+
+  padding: 5px 5px 44px;
+
+  color: #254b55;
+
+  container-type: inline-size;
+}
+
+
+.artwork-card:focus-visible,
+.mobile-favorite:focus-visible {
+
+  outline: 3px solid #176378;
+
+  outline-offset: -3px;
+}
+
+
+.artwork-card .artwork-museum-frame {
+
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio: 1;
+
+  padding: 0;
+
+  border-width: 4px;
+
+  box-shadow: none;
+}
+
+
+.artwork-card-image {
+
+  width: 100%;
+
+  height: 100%;
+
+  object-fit: contain;
+}
+
+
+.artwork-card-info {
+
+  display: block;
+
+  min-height: 0;
+
+  min-width: 0;
+
+  padding: 8px 7px 0;
+}
+
+
+.artwork-card-title {
+
+  overflow: hidden;
+
+  margin: 5px 0 0;
+
+  font-size: clamp(11px, 10cqw, 20px);
+
+  font-weight: 700;
+
+  line-height: 1.5;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+
+
+
+.artwork-card-artist {
+
+  overflow: hidden;
+
+  margin: 4px 0 0;
+
+  font-size: clamp(10px, 7cqw, 16px);
+
+  line-height: 1.6;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+
+
+
+.artwork-card-footer {
+
+  display: flex;
+
+  min-width: 0;
+
+  min-height: 36px;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  flex-wrap: wrap;
+
+  gap: 4px 8px;
+
+  margin-top: clamp(18px, 12cqw, 36px);
+}
+
+
+.artwork-card-price {
+
+  min-width: 0;
+
+  overflow-wrap: anywhere;
+
+  font-size: clamp(13px, 11cqw, 30px);
+
+  font-variant-numeric: tabular-nums;
+
+  font-weight: 800;
+
+  line-height: 1.4;
+}
+
+
+
+
+
+.artwork-card-time {
+
+  display: inline-flex;
+
+  max-width: 100%;
+
+  align-items: center;
+
+  gap: 3px;
+
+  font-size: clamp(9px, 5cqw, 14px);
+
+  line-height: 1.6;
+
+  white-space: nowrap;
+}
+
+
+.artwork-card-time svg {
+
+  width: 1.15em;
+
+  height: 1.15em;
+
+  flex-shrink: 0;
+}
+
+
+
+
+
+.artwork-card-time[hidden] {
+
+  display: none;
+}
+
+
+
+
+
+.artwork-card-sold {
+
+  position: absolute;
+
+  top: 0;
+
+  left: 0;
+
+  padding: 3px 7px;
+
+  color: #fff;
+
+  background: #d84b5c;
+
+  font-size: 12px;
+
+  font-weight: 800;
+}
+
+
+
+
+
+.mobile-favorite {
+
+  position: absolute;
+
+  right: 0;
+
+  bottom: 0;
+
+  display: grid;
+
+  width: 44px;
+
+  height: 44px;
+
+  place-items: center;
+
+  border-radius: 4px;
+
+  color: #42656c;
+
+  background: transparent;
+}
+
+
+.mobile-favorite svg {
+
+  width: 22px;
+
+  height: 22px;
+}
+
+
+.mobile-favorite[aria-pressed="true"] {
+
+  color: #d2536b;
+}
+
+
+.mobile-favorite[aria-pressed="true"] svg {
+
+  fill: #d2536b;
+}

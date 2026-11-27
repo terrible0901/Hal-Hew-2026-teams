@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+    <meta
+      name="description"
+      content="描クションの作品詳細と入札情報。"
+    />
+    <title>{{ result.title if result else "作品詳細" }} | 描クション</title>
+    <link
+      rel="stylesheet"
+      href="/static/zip-ui/stylecss/pages/product-detail.css"
+    />
+
+  </head>
+  <body
+    class="artwork-page"
+    data-artwork-kind="static"
+  >
+    <header class="artwork-header">
+      <div>
+        <a
+          href="/"
+          class="artwork-logo"
+          aria-label="描クション ホーム"
+          ><img
+            src="/static/zip-ui/images/kakushon-logo.png"
+            alt=""
+          /><span>描クション</span></a
+        >
+        <a
+          href="/"
+          class="artwork-back"
+          >← 作品一覧へ</a
+        >
+      </div>
+    </header>
+    <main>
+      <section
+        id="artwork-missing"
+        class="artwork-missing"
+        {% if result %}hidden{% endif %}
+      >
+        <h1>作品が見つかりません</h1>
+        <p>指定された作品データを確認できませんでした。</p>
+        <a href="/">作品一覧へ戻る</a>
+      </section>
+      <div
+        id="artwork-content"
+        class="artwork-content"
+        {% if not result %}hidden{% endif %}
+      >
+        {% if result %}
+        {% set category = {'free':'free','vehicle':'乗り物','animal':'動物','insect':'昆虫','plant':'植物','food':'食べ物','chara':'キャラクター','domae':'堂前和希'}.get(result.category, result.category) %}
+        <nav
+          class="artwork-breadcrumb"
+          aria-label="パンくず"
+        >
+          <a href="/">トップ</a><span aria-hidden="true">›</span
+          ><span data-art-category>{{ category }}</span><span aria-hidden="true">›</span
+          ><span data-art-title>{{ result.title }}</span>
+        </nav>
+        <section class="artwork-main-panel">
+          <div class="artwork-image-panel">
+            <div class="artwork-image-frame artwork-watermark">
+              <img
+                id="artwork-image"
+                {% if result.image_path %}src="{{ url_for('get_drawing', filename=result.image_path) }}"{% else %}hidden{% endif %}
+                alt="{{ result.title }}"
+
+              />
+            </div>
+          </div>
+          <div class="artwork-information">
+            <span
+              data-art-category
+              class="artwork-category"
+            >{{ category }}</span>
+            <h1 data-art-title>{{ result.title }}</h1>
+            <p class="artwork-author">作者 <span data-art-artist>{{ result.disp_name }}</span></p>
+
+            <p class="artwork-creation"
+              >制作日 <span data-art-creation>{{ result.created_at or "—" }}</span
+            ></p>
+
+            <div
+              id="product-actions"
+              class="product-actions"
+            >
+              <div class="auction-summary">
+
+                <div class="auction-price-line">
+                  <span data-auction-label>現在価格</span>
+                  <strong data-auction-price>{{ "{:,}".format(result.current_price) ~ "pt" }}</strong>
+                </div>
+                <div
+                  class="auction-buy-now"
+                  data-buy-now-row
+                  hidden
+                >
+                  <span>即決価格</span><strong data-buy-now-price></strong>
+                </div>
+                <p
+                  class="auction-sold"
+                  data-auction-status
+                  hidden
+                >
+                  落札
+                </p>
+                <div class="auction-stats">
+
+
+                  <div
+                    class="auction-time"
+                    data-auction-deadline
+                  >
+                    <span>◷ 終了まで</span
+                    ><strong data-auction-time>{% if result.remaining_time is not none and result.remaining_time.total_seconds is defined and result.remaining_time.total_seconds() <= 0 %}終了・結果確定待ち{% else %}{{ result.remaining_time if result.remaining_time is not none else "—" }}{% endif %}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <article class="artwork-overview">
+                <h2>作品について</h2>
+                <p id="artwork-description">{{ result.description or "特になし" }}</p>
+              </article>
+              <div data-bid-form>
+                <label
+                  >入札金額<span class="bid-input-wrapper"
+                    ><input
+                      data-bid-input name="bid_amount" disabled value="{{ result.current_price + 1 }}"
+                      type="number"
+                      step="1"
+                      required
+                      inputmode="numeric"
+                    /><span>pt</span></span
+                  ></label
+                >
+                <button
+                  type="button" disabled
+                  class="bid-submit"
+                >
+                  この金額で入札する
+                </button>
+              </div>
+              <button
+                type="button"
+                data-buy-now
+                class="bid-submit buy-now-submit"
+                hidden
+              >
+                即決で落札する
+              </button>
+              <button
+                type="button"
+                data-favorite disabled
+                class="favorite-button"
+                aria-pressed="false"
+              >
+                ♡ お気に入りに追加
+              </button>
+              <p
+                data-auction-error
+                class="artwork-error">入札とお気に入りは未接続です。</p>
+              <p
+                data-auction-message
+                class="artwork-message"
+                role="status"
+                hidden
+              ></p>
+            </div>
+          </div>
+        </section>
+        <section class="artwork-secondary">
+          <article class="artwork-description">
+            <h2>作品情報</h2>
+            <dl id="artwork-facts">
+              <div><dt>カテゴリー</dt><dd>{{ category }}</dd></div>
+              {% if result.created_at %}<div><dt>制作日</dt><dd>{{ result.created_at }}</dd></div>{% endif %}
+              <div id="artwork-size" hidden><dt>サイズ</dt><dd></dd></div>
+            </dl>
+          </article>
+          <aside class="artwork-artist">
+            <p class="artist-label">ARTIST</p>
+            <div class="artist-summary">
+              <span id="artist-initial">{{ (result.disp_name or '')[:1]|upper }}</span>
+              <div><h2>{{ result.disp_name }}</h2></div>
+            </div>
+          </aside>
+        </section>
+        <section class="related-section">
+          <div class="related-heading"><h2>ほかの注目作品</h2><a href="{{ url_for('index') }}">すべて見る</a></div>
+          <div class="related-grid" id="related-artworks" data-src="{{ url_for('index', view='related', exclude=request.args.get('id')) }}"></div>
+          <p id="related-status" role="status"></p>
+        </section>
+        <script defer src="{{ url_for('static', filename='js/artwork-detail.js') }}"></script>
+        {% endif %}
+      </div>
+    </main>
+  </body>
+</html>

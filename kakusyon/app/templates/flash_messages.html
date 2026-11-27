@@ -1,0 +1,11 @@
+{% set labels = {
+    'Invalid username or Password': 'ユーザー名またはパスワードが違います。入力内容をご確認ください。',
+    'Username already taken.': 'このユーザー名は既に使われています。',
+    'Please fill in the password.': 'パスワードを入力してください。',
+    'Passwords do not match. Please try again.': '確認用のパスワードが一致しません。',
+    'Account created successfully!': 'アカウントを作成しました。',
+    'Log in success!': 'ログインしました。'
+} %}
+{% for category, message in get_flashed_messages(with_categories=true) %}
+    <p class="notice {{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}">{{ labels.get(message, message) }}</p>
+{% endfor %}

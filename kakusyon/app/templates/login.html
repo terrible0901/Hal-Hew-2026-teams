@@ -3,6 +3,7 @@
 {% block auth_form %}
 <h2 id="auth-title">おかえりなさい</h2>
 <p class="intro">登録したユーザー名でログインしてください。</p>
+{% include 'flash_messages.html' %}
 <form class="auth-form" action="{{ url_for('log_in') }}" method="post">
     <label for="username">ユーザー名</label>
     <input id="username" name="username" autocomplete="username" placeholder="ユーザー名を入力" required>

@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>描画する | 描クション</title
+    >
+    <link
+      rel="stylesheet"
+      href="/static/zip-ui/stylecss/pages/drawing-canvas.css"
+    />
+    <script
+      type="module"
+      src="/static/zip-ui/javascript/pages/drawing-canvas.js"
+    ></script>
+  </head>
+  <body>
+
+    <main
+      id="drawing-shell"
+      class="draw-shell"
+      data-panel="canvas"
+    >
+      <img
+        id="theme-background"
+        class="draw-background"
+        src="/static/zip-ui/images/drawing-theme-food.png"
+        alt=""
+      />
+      <div class="draw-background-shade"></div>
+      <header
+        class="draw-desktop-header"
+        data-countdown-inert
+      >
+        <a
+          class="draw-brand"
+          href="/"
+          aria-label="描クション ホーム"
+        >
+          <img
+            src="/static/zip-ui/images/kakushon-logo.png"
+            alt=""
+          />
+          <span>描クション</span>
+        </a>
+        <span
+          id="desktop-topic"
+          class="draw-topic-badge"
+        ></span>
+      </header>
+
+      <div
+        class="draw-mobile-status-bar"
+        data-countdown-inert
+        aria-label="描画中の情報"
+      >
+        <a
+          class="draw-mobile-home"
+          href="/"
+          aria-label="描クション ホーム"
+        >
+          <img
+            src="/static/zip-ui/images/kakushon-logo.png"
+            alt=""
+          />
+        </a>
+        <div class="draw-mobile-topic">
+          <span id="mobile-mode"></span><br /><span data-theme-label></span>
+        </div>
+        <div
+          class="draw-mobile-clock"
+          data-timer-card
+          role="timer"
+          aria-label="残り時間"
+        >
+          <span>残り時間</span>
+          <strong data-time-text>--:--</strong>
+        </div>
+        <button
+          type="button"
+          class="draw-mobile-finish"
+          data-open-dialog="finish"
+        >
+          終了
+        </button>
+      </div>
+      <div
+        class="draw-mobile-panel-heading"
+        data-countdown-inert
+      >
+        <button
+          type="button"
+          data-panel-button="canvas"
+        >
+          ← キャンバスへ戻る
+        </button>
+        <span id="panel-swipe-description"></span>
+      </div>
+      <div
+        class="draw-workspace"
+        data-countdown-inert
+      >
+        <aside
+          class="draw-tools"
+          id="drawing-tools"
+          aria-label="描画ツール"
+        >
+          <div
+            id="pro-settings"
+            class="draw-pro-settings"
+            hidden
+          >
+
+            <div class="pro-tools-body">
+              <fieldset class="pro-group pro-pen-group">
+                <legend>ペンの種類</legend>
+                <div
+                  id="pen-options"
+                  class="pro-choice-grid pro-pen-grid"
+                ></div>
+              </fieldset>
+              <fieldset class="pro-group pro-width-group">
+                <legend>ペンの太さ</legend>
+                <div
+                  id="width-options"
+                  class="pro-width-grid"
+                ></div>
+              </fieldset>
+
+              <div
+                id="pro-edit-slot"
+                class="pro-group draw-edit-slot"
+              >
+                <div
+                  id="drawing-edit-tools"
+                  class="draw-edit-tools"
+                >
+                  <button
+                    id="bucket-button"
+                    type="button"
+                    class="draw-tool-button"
+                    data-edit-tool="bucket"
+                    aria-pressed="false"
+                  >
+                    バケツ
+                  </button>
+                  <button
+                    id="selection-button"
+                    type="button"
+                    class="draw-tool-button"
+                    data-edit-tool="select"
+                    aria-pressed="false"
+                  >
+                    切り取り・回転
+                  </button>
+                </div>
+              </div>
+              <fieldset class="pro-group pro-diffusion-group">
+                <legend>水中インクアート</legend>
+                <div
+                  id="diffusion-options"
+                  class="pro-ink-choices"
+                ></div>
+              </fieldset>
+              <fieldset class="pro-group pro-ink-kind-group">
+                <legend>インクの種類</legend>
+                <div class="pro-choice-grid">
+                  <button
+                    type="button"
+                    class="pro-ink-kind"
+                    data-ink-kind="dye"
+                    aria-pressed="true"
+                  >
+                    染料インク
+                  </button>
+                  <button
+                    type="button"
+                    class="pro-ink-kind"
+                    data-ink-kind="pigment"
+                    aria-pressed="false"
+                  >
+                    顔料インク
+                  </button>
+                </div>
+              </fieldset>
+              <div class="pro-group pro-amount-group">
+                <label
+                  class="pro-slider-label"
+                  for="ink-amount"
+                  >溶かすインクの量
+                  <span id="ink-amount-text">50%</span></label
+                >
+                <input
+                  id="ink-amount"
+                  class="draw-range"
+                  type="range"
+                  min="1"
+                  max="100"
+                  step="1"
+                  value="50"
+                  aria-label="溶かすインクの量"
+                />
+                <p class="pro-tool-note">
+                  キャンバスをクリック・ドラッグで投入
+                </p>
+              </div>
+              <div class="pro-group pro-color-group">
+                <div class="draw-color-heading">
+                  <h2>カラーピッカー</h2>
+                  <span id="pro-eyedropper-slot">
+                    <button
+                      id="eyedropper-button"
+                      type="button"
+                      class="draw-tool-button draw-eyedropper"
+                      data-edit-tool="eyedropper"
+                      aria-pressed="false"
+                    >
+                      スポイト
+                    </button>
+                  </span>
+                </div>
+                <div class="pro-color-picker">
+                  <div
+                    id="color-field"
+                    class="pro-color-field"
+                    role="group"
+                    tabindex="0"
+                    aria-label="彩度と明るさの選択"
+                    aria-describedby="pro-color-keyboard-hint"
+                  >
+                    <span id="color-marker"></span>
+                  </div>
+                  <label
+                    class="pro-slider-label"
+                    for="color-hue"
+                    >色相 <span id="color-hue-text">0°</span></label
+                  >
+                  <input
+                    id="color-hue"
+                    class="draw-range pro-hue-slider"
+                    type="range"
+                    min="0"
+                    max="359"
+                    step="1"
+                    value="0"
+                    aria-label="色相"
+                  />
+                  <span
+                    id="pro-color-keyboard-hint"
+                    class="sr-only"
+                    >左右キーで彩度、上下キーで明るさを調整できます。Shiftキーで大きく調整します。</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="normal-settings">
+            <div class="draw-color-heading">
+              <p class="draw-tools-title">ペン</p>
+              <span id="normal-eyedropper-slot"></span>
+            </div>
+            <div
+              id="color-palette"
+              class="draw-palette"
+              aria-label="ペンの色"
+            ></div>
+            <div id="normal-edit-slot"></div>
+          </div>
+          <div class="draw-tool-actions">
+            <button
+              id="eraser-button"
+              type="button"
+              class="draw-tool-button"
+              aria-pressed="false"
+            >
+              <svg
+                class="ui-icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <use href="#icon-eraser"></use></svg
+              >消しゴム
+            </button>
+            <button
+              id="normal-clear-button"
+              type="button"
+              class="draw-tool-button"
+            >
+              <svg
+                class="ui-icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <use href="#icon-undo"></use></svg
+              >全消去
+            </button>
+            <button
+              id="undo-button"
+              type="button"
+              class="draw-tool-button"
+              aria-label="直前の操作を元に戻す"
+            >
+              ↶ 戻す
+            </button>
+          </div>
+
+        </aside>
+        <section
+          class="draw-stage"
+          aria-label="作品の描画エリア"
+        >
+          <div class="draw-frame">
+            <div class="draw-surface">
+              <canvas
+                id="drawing-canvas"
+                class="draw-canvas"
+                width="900"
+                height="900"
+                tabindex="0"
+                aria-label="描画キャンバス"
+              ></canvas>
+
+              <svg
+                id="selection-overlay"
+                class="draw-selection-overlay"
+                viewBox="0 0 900 900"
+                aria-hidden="true"
+                hidden
+              >
+                <g id="selection-outline-group">
+                  <rect
+                    id="selection-outline"
+                    class="draw-selection-outline"
+                    x="0"
+                    y="0"
+                    width="0"
+                    height="0"
+                  ></rect>
+                  <line
+                    id="selection-rotation-line"
+                    class="draw-selection-rotation-line"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="0"
+                  ></line>
+                  <circle
+                    id="selection-rotation-handle"
+                    class="draw-selection-rotation-handle"
+                    cx="0"
+                    cy="0"
+                    r="12"
+                  ></circle>
+                </g>
+              </svg>
+              <span
+                id="drawing-cursor"
+                class="draw-cursor draw-cursor-pen"
+                aria-hidden="true"
+                hidden
+              >
+                <span
+                  id="cursor-ring"
+                  class="draw-cursor-ring"
+                ></span>
+                <svg
+                  class="draw-cursor-icon ui-icon"
+                  viewBox="0 0 24 24"
+                >
+                  <use
+                    id="cursor-icon"
+                    href="#icon-pencil"
+                  ></use>
+                </svg>
+              </span>
+            </div>
+          </div>
+          <p
+            id="drawing-tool-status"
+            class="draw-edit-status"
+            role="status"
+            aria-live="polite"
+          ></p>
+
+          <div
+            id="selection-controls"
+            class="draw-selection-controls"
+            hidden
+          >
+            <div class="draw-selection-angle-row">
+              <button
+                id="rotate-left"
+                type="button"
+                aria-label="選択範囲を左へ90度回転"
+              >
+                ↶90°
+              </button>
+              <label for="selection-angle"
+                >角度 <output id="selection-angle-text">0°</output></label
+              >
+              <button
+                id="rotate-right"
+                type="button"
+                aria-label="選択範囲を右へ90度回転"
+              >
+                ↷90°
+              </button>
+            </div>
+            <input
+              id="selection-angle"
+              class="draw-range"
+              type="range"
+              min="-180"
+              max="180"
+              value="0"
+              step="1"
+              aria-label="選択範囲の回転角度"
+            />
+            <div class="draw-selection-confirm-row">
+              <button
+                id="selection-cancel"
+                type="button"
+              >
+                取消
+              </button>
+              <button
+                id="selection-apply"
+                type="button"
+              >
+                適用
+              </button>
+            </div>
+          </div>
+        </section>
+        <aside
+          class="draw-controls"
+          aria-label="描画の進行"
+        >
+          <div class="draw-status">
+            <div
+              class="draw-timer"
+              data-timer-card
+              role="timer"
+              aria-label="残り時間"
+            >
+              <span>残り時間</span><strong data-time-text>--:--</strong>
+            </div>
+            <div
+              id="normal-theme-card"
+              class="draw-theme"
+            >
+              <span>お題</span><strong data-theme-label></strong>
+            </div>
+          </div>
+          <div class="draw-session-actions">
+            <button
+              type="button"
+              class="draw-retire"
+              data-open-dialog="retire"
+            >
+              <svg
+                class="ui-icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <use href="#icon-home"></use></svg
+              >リタイア
+            </button>
+            <button
+              type="button"
+              class="draw-finish"
+              data-open-dialog="finish"
+            >
+              <svg
+                class="ui-icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <use href="#icon-flag"></use></svg
+              >終了
+            </button>
+            <details
+              id="pro-layers"
+              class="pro-layers"
+              open
+              hidden
+            >
+              <summary>
+                <svg
+                  class="ui-icon"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <use href="#icon-layers"></use></svg
+                >レイヤー <span id="layer-count">1/4</span>
+              </summary>
+              <div class="pro-layers-body">
+                <p
+                  id="layer-drag-help"
+                  class="sr-only"
+                >
+                  レイヤー名を上下にドラッグして並べ替えます。キーボードではAltと上下矢印を使えます。
+                </p>
+                <div
+                  id="layer-list"
+                  class="pro-layer-list"
+                >
+                  <span
+                    id="layer-drop-line"
+                    class="pro-layer-drop-line"
+                    aria-hidden="true"
+                    hidden
+                  ></span>
+                </div>
+                <div class="pro-layer-opacity">
+                  <label
+                    class="pro-slider-label"
+                    for="layer-opacity"
+                    >濃さ（不透明度）<span id="layer-opacity-text"
+                      >100%</span
+                    ></label
+                  >
+                  <input
+                    id="layer-opacity"
+                    class="draw-range"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value="100"
+                    aria-label="選択レイヤーの不透明度"
+                  />
+                </div>
+                <div class="pro-layer-actions">
+                  <button
+                    id="add-layer"
+                    type="button"
+                  >
+                    ＋ 追加
+                  </button>
+                  <button
+                    id="remove-layer"
+                    type="button"
+                  >
+                    削除
+                  </button>
+                </div>
+                <div class="pro-layer-actions pro-layer-clear">
+                  <button
+                    id="clear-layer"
+                    type="button"
+                  >
+                    選択レイヤーを消去
+                  </button>
+                </div>
+                <p
+                  id="layer-warning"
+                  class="pro-layer-warning"
+                  hidden
+                >
+                  選択中のレイヤーは非表示です
+                </p>
+              </div>
+            </details>
+          </div>
+        </aside>
+      </div>
+      <nav
+        id="mobile-navigation"
+        class="draw-mobile-navigation"
+        tabindex="-1"
+        data-countdown-inert
+        aria-label="描画画面の切り替え"
+      >
+        <button
+          type="button"
+          data-panel-button="tools"
+          aria-pressed="false"
+        >
+          <svg
+            class="ui-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <use href="#icon-pencil"></use></svg
+          >ペン
+        </button>
+        <button
+          type="button"
+          data-panel-button="layers"
+          aria-pressed="false"
+        >
+          <svg
+            class="ui-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <use href="#icon-layers"></use></svg
+          ><span id="mobile-layer-label">操作</span>
+        </button>
+      </nav>
+      <div
+        id="drawing-countdown"
+        class="draw-countdown"
+        role="status"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div class="draw-countdown-panel">
+          <p>お題：<span data-theme-label></span></p>
+          <strong id="countdown-number">3</strong>
+          <span id="countdown-message">準備はいいですか？</span>
+          <a href="/">トップへ戻る</a>
+        </div>
+      </div>
+    </main>
+
+    <dialog
+      id="retire-dialog"
+      class="draw-dialog"
+      aria-labelledby="retire-title"
+      aria-describedby="retire-description"
+    >
+      <h2 id="retire-title">リタイアしますか？</h2>
+      <p id="retire-description">
+        描いた内容は保存されず、トップページへ戻ります。
+      </p>
+      <div class="draw-dialog-actions">
+        <button
+          type="button"
+          class="draw-dialog-cancel"
+          data-close-dialog
+        >
+          続ける
+        </button>
+        <button
+          id="confirm-retire"
+          type="button"
+          class="draw-dialog-retire"
+        >
+          リタイア
+        </button>
+      </div>
+    </dialog>
+    <dialog
+      id="finish-dialog"
+      class="draw-dialog"
+      aria-labelledby="finish-title"
+    >
+      <h2 id="finish-title">描画を終了しますか？</h2>
+      <p
+        id="drawing-save-error"
+        class="draw-save-error"
+        role="alert"
+        hidden
+      ></p>
+      <div class="draw-dialog-actions">
+        <button
+          id="continue-drawing"
+          type="button"
+          class="draw-dialog-cancel"
+          data-close-dialog
+        >
+          続ける
+        </button>
+        <button
+          id="confirm-finish"
+          type="button"
+          class="draw-dialog-finish"
+        >
+          終了する
+        </button>
+      </div>
+    </dialog>
+
+    <template id="pen-option-template"
+      ><button type="button">
+        <span class="pro-pen-sample"></span
+        ><span data-option-label></span></button
+    ></template>
+    <template id="width-option-template"
+      ><button type="button">
+        <span data-width-preview></span
+        ><span data-option-label></span></button
+    ></template>
+    <template id="diffusion-option-template"
+      ><button type="button">
+        <strong data-option-label></strong
+        ><span data-option-detail></span></button
+    ></template>
+    <template id="palette-option-template"
+      ><button
+        type="button"
+        class="draw-color"
+      ></button
+    ></template>
+    <template id="layer-row-template">
+      <div class="pro-layer-row">
+        <button
+          type="button"
+          class="pro-layer-select"
+          data-layer-select
+          aria-describedby="layer-drag-help"
+          aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+          title="上下にドラッグして並べ替え"
+        >
+          <svg
+            class="pro-layer-grip ui-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <use href="#icon-grip"></use>
+          </svg>
+          <span
+            class="pro-layer-thumb"
+            data-layer-number
+          ></span
+          ><span data-layer-name></span>
+        </button>
+        <button
+          type="button"
+          data-layer-visibility
+        >
+          <svg
+            class="ui-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <use
+              data-visibility-icon
+              href="#icon-eye"
+            ></use>
+          </svg>
+        </button>
+      </div>
+    </template>
+
+    <svg
+      class="draw-icon-definitions"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <defs>
+        <symbol
+          id="icon-pencil"
+          viewBox="0 0 24 24"
+        >
+          <path d="m4 16-1 5 5-1L20 8l-4-4Z M13 7l4 4"></path>
+        </symbol>
+        <symbol
+          id="icon-eraser"
+          viewBox="0 0 24 24"
+        >
+          <path d="m3 15 9-11 9 8-8 9H8Z M8 10l9 8 M13 21h9"></path>
+        </symbol>
+        <symbol
+          id="icon-ink"
+          viewBox="0 0 24 24"
+        >
+          <path d="M12 2C9 6 5 10 5 14a7 7 0 0 0 14 0c0-4-4-8-7-12Z"></path>
+        </symbol>
+        <symbol
+          id="icon-spray"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M5 8h8v13H5Z M7 4h4v4 M8 2h5 M16 5h2 M19 3h2 M19 7h2"
+          ></path>
+        </symbol>
+        <symbol
+          id="icon-undo"
+          viewBox="0 0 24 24"
+        >
+          <path d="M4 9a8 8 0 1 1 1 10 M4 3v6h6"></path>
+        </symbol>
+        <symbol
+          id="icon-home"
+          viewBox="0 0 24 24"
+        >
+          <path d="m3 10 9-8 9 8v11H3Z M9 21v-8h6v8"></path>
+        </symbol>
+        <symbol
+          id="icon-flag"
+          viewBox="0 0 24 24"
+        >
+          <path d="M5 22V3c5-3 9 3 14 0v11c-5 3-9-3-14 0"></path>
+        </symbol>
+        <symbol
+          id="icon-layers"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="m2 8 10-6 10 6-10 6Z M2 12l10 6 10-6 M2 16l10 6 10-6"
+          ></path>
+        </symbol>
+        <symbol
+          id="icon-grip"
+          viewBox="0 0 24 24"
+        >
+          <path d="M8 5h1 M15 5h1 M8 12h1 M15 12h1 M8 19h1 M15 19h1"></path>
+        </symbol>
+        <symbol
+          id="icon-eye"
+          viewBox="0 0 24 24"
+        >
+          <path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8S2 12 2 12Z"></path>
+          <circle
+            cx="12"
+            cy="12"
+            r="3"
+          ></circle>
+        </symbol>
+        <symbol
+          id="icon-eye-off"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="m2 2 20 20 M6 6C3 8 2 12 2 12s4 8 10 8c3 0 5-1 7-3 M10 4h2c6 0 10 8 10 8l-2 3"
+          ></path>
+        </symbol>
+      </defs>
+    </svg>
+  </body>
+</html>

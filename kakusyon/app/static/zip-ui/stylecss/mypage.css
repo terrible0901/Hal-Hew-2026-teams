@@ -1,0 +1,476 @@
+.mypage-overview {
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) minmax(0, 2fr);
+  gap: 22px;
+}
+.mypage-card {
+  border: 1px solid #dce5e2;
+  border-radius: 16px;
+  background: #fff;
+}
+.mypage-profile {
+  min-width: 0;
+  padding: 26px;
+}
+.mypage-profile-person {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.mypage-profile-person .mypage-avatar {
+  width: 62px;
+  height: 62px;
+  font-size: 30px;
+}
+.mypage-profile-person > div {
+  min-width: 0;
+}
+.mypage-profile-person h2 {
+  overflow-wrap: anywhere;
+  font-size: 22px;
+  font-weight: 800;
+}
+.mypage-profile-person p {
+  overflow-wrap: anywhere;
+  margin-top: 4px;
+  color: #7a8b90;
+  font-size: 14px;
+}
+.mypage-edit {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 22px;
+  padding: 8px;
+  border-radius: 8px;
+  color: #216979;
+  background: #f0f6f3;
+  font-weight: 700;
+}
+.mypage-edit span:last-child {
+  display: none;
+}
+.mypage-points {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 22px;
+  padding: 24px 28px;
+  border-radius: 16px;
+  color: #fff;
+  background: #1d6879;
+}
+.mypage-points h2 {
+  font-size: 15px;
+  font-weight: 400;
+  color: #d8e9e9;
+}
+.mypage-points p {
+  display: flex;
+  align-items: baseline;
+  gap: 15px;
+  margin-top: 8px;
+}
+.mypage-points strong {
+  font-size: clamp(36px, 4vw, 54px);
+  line-height: 1.1;
+  font-weight: 800;
+}
+.mypage-points p span {
+  font-size: 22px;
+  font-weight: 700;
+}
+.mypage-point-purchase {
+  min-height: 50px;
+  padding: 10px 20px;
+  border-radius: 9px;
+  background: #fff;
+  color: #216979;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.mypage-point-history {
+  grid-column: 1 / -1;
+  width: fit-content;
+  min-height: 38px;
+  padding: 2px 0;
+  color: #d8e9e9;
+  font-size: 14px;
+  text-align: left;
+}
+.mypage-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 22px;
+  padding: 20px 0;
+}
+.mypage-stats a {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  border-right: 1px solid #e3ebe7;
+}
+.mypage-stats a:last-child {
+  border: 0;
+}
+.mypage-stats strong {
+  color: #216979;
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+.mypage-stats span {
+  color: #7a8b90;
+  font-size: 13px;
+}
+.mypage-management-title {
+  margin: 24px 0 15px;
+  font-size: 19px;
+  font-weight: 800;
+}
+.mypage-management {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 22px;
+}
+.mypage-management a {
+  display: flex;
+  min-width: 0;
+  min-height: 86px;
+  align-items: center;
+  gap: 14px;
+  padding: 17px 22px;
+  border: 1px solid #dce5e2;
+  border-radius: 14px;
+  background: #fff;
+  text-align: left;
+}
+.mypage-management a > span:first-child {
+  min-width: 0;
+}
+.mypage-management strong {
+  display: block;
+  font-size: 18px;
+  font-weight: 800;
+}
+.mypage-management small {
+  display: block;
+  margin-top: 5px;
+  color: #7a8b90;
+  font-size: 12px;
+}
+.mypage-menu-count {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: #216979;
+  font-size: 12px;
+  font-weight: 700;
+}
+.mypage-chevron {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: #7a8b90;
+  font-size: 30px;
+  line-height: 1;
+}
+.mypage-menu-count + .mypage-chevron {
+  margin-left: 0;
+}
+.mypage-status {
+  margin: 18px 0;
+  font-size: 14px;
+  color: #216979;
+}
+.mypage-content {
+  max-width: 1370px;
+  margin-inline: auto;
+}
+.mypage-heading-note {
+  color: #7a8b90;
+  font-size: 13px;
+}
+.mypage-profile-person .mypage-avatar {
+  width: 62px;
+  height: 62px;
+}
+.mypage-edit {
+  text-align: center;
+}
+.mypage-point-purchase {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.mypage-point-history {
+  display: flex;
+  align-items: center;
+}
+.mypage-points .mypage-coin-available {
+  grid-column: 1/-1;
+  margin-top: -16px;
+  font-size: 12px;
+  color: #d8e9e9;
+}
+.mypage-guest {
+  width: min(100%, 940px);
+  margin: 30px auto;
+  padding: 65px 50px;
+  border: 1px solid #dce5e2;
+  border-radius: 16px;
+  background: #fff;
+}
+.mypage-guest-hero {
+  display: grid;
+  justify-items: center;
+  gap: 25px;
+  text-align: center;
+}
+.mypage-guest-icon {
+  display: grid;
+  width: 106px;
+  height: 106px;
+  padding: 21px;
+  border-radius: 50%;
+  color: #216979;
+  background: #e6f3ee;
+}
+.mypage-guest-icon svg {
+  width: 100%;
+  height: 100%;
+}
+.mypage-guest h2 {
+  font-size: 25px;
+  font-weight: 800;
+}
+.mypage-guest p {
+  color: #7a8b90;
+  font-size: 15px;
+}
+.mypage-guest-actions {
+  display: grid;
+  gap: 15px;
+  width: min(100%, 510px);
+  margin: 30px 0;
+}
+.mypage-guest-mobile {
+  display: none;
+}
+.mypage-guest-benefits {
+  border: 0;
+  padding-bottom: 0;
+  margin: 35px auto 0;
+  width: min(100%,510px);
+}
+.mypage-guest-benefits h3 {
+  font-size: 18px;
+  font-weight: 800;
+}
+.mypage-guest-benefits ul {
+  display: grid;
+  gap: 18px;
+  margin-top: 20px;
+}
+.mypage-guest-benefits li::before {
+  content: "✓";
+  margin-right: 12px;
+  color: #168573;
+}
+@media (min-width: 641px) {
+  .mypage-guest-benefits {
+    display: none;
+  }
+}
+@media (max-width: 640px) {
+  .mypage-main {
+    padding: 84px 20px 40px;
+  }
+  .mypage-heading-note, .mypage-management-title {
+    display: none;
+  }
+  .mypage-overview {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .mypage-profile {
+    position: relative;
+    min-height: 100px;
+    padding: 20px 15px;
+  }
+  .mypage-profile-person {
+    gap: 14px;
+    padding-right: 66px;
+  }
+  .mypage-profile-person .mypage-avatar {
+    width: 52px;
+    height: 52px;
+    font-size: 26px;
+  }
+  .mypage-profile-person h2 {
+    font-size: 19px;
+  }
+  .mypage-profile-person p {
+    font-size: 12px;
+  }
+  .mypage-edit {
+    position: absolute;
+    top: 31px;
+    right: 15px;
+    width: 64px;
+    min-height: 38px;
+    margin: 0;
+    font-size: 13px;
+  }
+  .mypage-edit span:first-child {
+    display: none;
+  }
+  .mypage-edit span:last-child {
+    display: inline;
+  }
+  .mypage-points {
+    gap: 17px 10px;
+    padding: 20px 15px 14px;
+    border-radius: 14px;
+  }
+  .mypage-points > div:first-child {
+    min-width: 0;
+  }
+  .mypage-points h2 {
+    font-size: 13px;
+  }
+  .mypage-points p {
+    min-width: 0;
+    max-width: 100%;
+    gap: 9px;
+    margin-top: 10px;
+  }
+  .mypage-points strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 36px;
+  }
+  .mypage-points p span {
+    flex-shrink: 0;
+    font-size: 17px;
+  }
+  .mypage-points.mypage-points-long-balance p {
+    gap: 5px;
+  }
+  .mypage-points.mypage-points-long-balance strong {
+    font-size: clamp(16px, 5.625vw, 24px);
+  }
+  .mypage-point-purchase {
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  .mypage-point-history {
+    font-size: 11px;
+    min-height: 36px;
+  }
+  .mypage-stats {
+    margin-top: 16px;
+    padding: 21px 0;
+  }
+  .mypage-stats a {
+    border: 0;
+    gap: 9px;
+  }
+  .mypage-stats strong {
+    font-size: 25px;
+  }
+  .mypage-stats span {
+    font-size: 11px;
+  }
+  .mypage-management {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 20px;
+    padding: 0 16px;
+    border: 1px solid #dce5e2;
+    border-radius: 14px;
+    background: #fff;
+  }
+  .mypage-management a {
+    min-height: 64px;
+    padding: 14px 0;
+    border: 0;
+    border-bottom: 1px solid #dce5e2;
+    border-radius: 0;
+  }
+  .mypage-management a:nth-child(5) {
+    border: 0;
+  }
+  .mypage-management strong {
+    font-size: 15px;
+  }
+  .mypage-management small {
+    display: none;
+  }
+  .mypage-menu-count {
+    font-size: 10px;
+  }
+  .mypage-management .mypage-logout {
+    justify-content: center;
+    position: relative;
+    margin: 0 -16px -78px;
+    min-height: 78px;
+    border: 0;
+    background: transparent;
+    color: #7a8b90;
+  }
+  .mypage-logout strong {
+    font-size: 14px;
+    font-weight: 400;
+  }
+  .mypage-logout .mypage-chevron {
+    display: none;
+  }
+  .mypage-content {
+    padding-bottom: 78px;
+  }
+  .mypage-guest {
+    margin: 0;
+    padding: 20px 0;
+    border: 0;
+    background: transparent;
+  }
+  .mypage-guest-icon {
+    width: 74px;
+    height: 74px;
+    padding: 15px;
+  }
+  .mypage-guest h2 {
+    font-size: 20px;
+  }
+  .mypage-guest-hero {
+    gap: 20px;
+  }
+  .mypage-guest-hero p {
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .mypage-guest-pc {
+    display: none;
+  }
+  .mypage-guest-mobile {
+    display: inline;
+  }
+  .mypage-guest-actions {
+    margin: 8px 0;
+    gap: 12px;
+  }
+  .mypage-guest-benefits {
+    margin-top: 28px;
+    padding: 20px 15px;
+    border: 1px solid #dce5e2;
+  }
+  .mypage-guest-benefits h3 {
+    font-size: 17px;
+  }
+  .mypage-guest-benefits li {
+    font-size: 13px;
+  }
+}

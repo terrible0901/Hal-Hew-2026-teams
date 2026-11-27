@@ -1,0 +1,393 @@
+
+
+
+
+.drawing-save-trigger {
+
+  display: flex;
+
+  width: 100%;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  margin-top: 16px;
+
+  border: 1px solid #178175;
+
+  border-radius: 6px;
+
+  padding: 12px 24px;
+
+  color: #08756c;
+
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+
+.drawing-save-trigger:hover {
+
+  background: #edf8f6;
+}
+
+
+.drawing-save-trigger:disabled {
+
+  cursor: not-allowed;
+
+  opacity: 0.4;
+}
+
+
+.drawing-save-dialog {
+
+  position: fixed;
+
+  width: min(440px, calc(100vw - 32px));
+
+  max-width: none;
+
+  max-height: 92dvh;
+
+  margin: auto;
+
+  overflow-y: auto;
+
+  border: 1px solid #c8d8d4;
+
+  border-radius: 12px;
+
+  padding: 28px 24px 20px;
+
+  color: #183c48;
+
+  background: white;
+
+  box-shadow: 0 20px 60px #08232d40;
+}
+
+
+.drawing-save-dialog[open] {
+
+  display: grid;
+
+  gap: 14px;
+}
+
+
+.drawing-save-dialog::backdrop {
+
+  background: #00000066;
+}
+
+
+.drawing-save-dialog [hidden] {
+
+  display: none;
+}
+
+
+.drawing-save-dialog h2 {
+
+  padding-inline: 16px;
+
+  text-align: center;
+
+  font-size: 20px;
+
+  font-weight: 900;
+}
+
+
+
+
+
+.drawing-save-status {
+
+  text-align: center;
+
+  color: #61777d;
+
+  font-size: 14px;
+
+  line-height: 24px;
+}
+
+
+.drawing-save-close {
+
+  position: absolute;
+
+  top: 12px;
+
+  right: 12px;
+
+  display: grid;
+
+  place-items: center;
+
+  width: 28px;
+
+  height: 28px;
+
+  border-radius: 4px;
+
+  cursor: pointer;
+}
+
+
+.drawing-save-close:hover {
+
+  background: #edf8f6;
+}
+
+
+.drawing-save-trigger svg,
+.drawing-save-dialog svg {
+
+  width: 20px;
+
+  height: 20px;
+
+  flex-shrink: 0;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 2;
+
+  stroke-linecap: round;
+
+  stroke-linejoin: round;
+}
+
+
+.drawing-qr-area {
+
+  display: grid;
+
+  place-items: center;
+
+  border: 1px solid #dbe7e4;
+
+  border-radius: 10px;
+
+  padding: 6px;
+
+  background: white;
+}
+
+
+
+
+
+.drawing-save-preview {
+
+  display: block;
+
+  width: 100%;
+
+  max-height: 35dvh;
+
+  object-fit: contain;
+}
+
+
+.drawing-qr-image {
+
+  display: block;
+
+  width: min(100%, 280px);
+
+  height: auto;
+
+  aspect-ratio: 1;
+}
+
+
+.drawing-save-busy {
+
+  display: grid;
+
+  justify-items: center;
+
+  gap: 12px;
+
+  color: #176378;
+}
+
+
+.drawing-save-spinner {
+
+  width: 36px;
+
+  height: 36px;
+
+  border: 3px solid #dbe7e4;
+
+  border-top-color: #176378;
+
+  border-radius: 50%;
+
+  animation: drawing-save-spin 1s linear infinite;
+}
+
+
+.drawing-save-error-box {
+
+  padding: 12px;
+
+  text-align: center;
+}
+
+
+.drawing-save-error {
+
+  color: #b53643;
+
+  font-size: 14px;
+
+  line-height: 24px;
+}
+
+
+.drawing-save-share,
+.drawing-save-revoke {
+
+  border: 1px solid #a9bdb8;
+
+  border-radius: 6px;
+
+  padding: 12px 16px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+
+.drawing-save-share {
+
+  color: #08756c;
+
+  background: #edf8f6;
+}
+
+
+.drawing-save-revoke {
+
+  color: #a42f40;
+
+  background: #fff8f8;
+}
+
+
+
+
+
+.drawing-save-dialog button:disabled {
+
+  cursor: not-allowed;
+
+  opacity: 0.5;
+}
+
+
+.drawing-save-local-note {
+
+  border: 1px solid #e0bb72;
+
+  border-radius: 6px;
+
+  padding: 10px;
+
+  color: #72531b;
+
+  background: #fffaed;
+
+  font-size: 13px;
+
+  line-height: 1.7;
+}
+
+
+.drawing-save-download {
+
+  display: flex;
+
+  width: 100%;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  border-radius: 6px;
+
+  padding: 14px 24px;
+
+  background: #176378;
+
+  color: white;
+
+  font-size: 16px;
+
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+
+.drawing-save-download:hover {
+
+  background: #104e60;
+}
+
+
+.drawing-save-link {
+
+  text-align: center;
+
+  color: #176378;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  text-decoration: underline;
+}
+
+
+.drawing-save-dialog button:focus-visible,
+.drawing-save-dialog a:focus-visible,
+.drawing-save-trigger:focus-visible {
+
+  outline: 3px solid #176378;
+
+  outline-offset: 3px;
+}
+
+
+@keyframes drawing-save-spin {
+
+  to {
+
+    transform: rotate(360deg);
+  }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+  .drawing-save-spinner {
+
+    animation: none;
+  }
+}
