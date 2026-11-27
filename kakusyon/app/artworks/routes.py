@@ -13,7 +13,7 @@ from app.services.image_service import save_image
 
 @app.route('/draw/setup')
 def setup() :
-    return render_template('setup.html')
+    return render_template('draw_setup.html')
 
 @app.route('/draw/canvas')
 def canvas() :
@@ -23,7 +23,12 @@ def canvas() :
     session['theme'] = theme
     session['draw_time'] = draw_time
     session['draw_mode'] = draw_mode
-    return render_template('canvas.html')
+    if draw_mode == 'pro':
+        return render_template('canvas_pro.html')
+    elif draw_mode == 'simple':
+        return render_template('canvas_simple.html')
+    else:
+        return render_template('canvas_mode_error.html')
 
 @app.route('/draw/complete')
 def complete() :
