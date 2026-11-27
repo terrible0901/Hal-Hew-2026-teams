@@ -1,5 +1,5 @@
 <nav class="mobile-home-bottom" aria-label="メインナビゲーション">
-    <a href="{{ url_for('index') }}" {{ 'aria-current=page' if not auth_page }}><span>ホーム</span><svg
+    <a href="{{ url_for('index') }}" {{ 'aria-current=page' if not auth_page and not account_view }}><span>ホーム</span><svg
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -25,7 +25,7 @@
 
           <path d="m16 10 5-3v10l-5-3Z" />
         </svg></button>
-    <button type="button" disabled><span>お絵描き</span><svg
+    <a href="{{ url_for('setup') }}"><span>お絵描き</span><svg
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -53,8 +53,8 @@
             cy="8"
             r=".7"
           /></svg
-      ></button>
-    <button type="button" disabled {{ 'aria-current=page' if auth_page }}><span>マイページ</span><svg
+      ></a>
+    <a href="{{ url_for('index', view='mypage') }}" {% if account_view == 'mypage' %}aria-current="page"{% elif account_view or auth_page %}aria-current="location"{% endif %}><span>マイページ</span><svg
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -68,5 +68,5 @@
           />
 
           <path d="M4 22v-3a8 8 0 0 1 16 0v3Z" /></svg
-      ></button>
+      ></a>
 </nav>

@@ -1,0 +1,205 @@
+      <div class="mypage-content">
+        <div class="account-page-heading">
+          <p data-account-breadcrumb>ホーム / マイページ</p>
+          <h1 data-account-title>マイページ</h1>
+          <span class="mypage-heading-note"
+            >アカウント情報とご利用状況</span
+          >
+        </div>
+        {% if not log_in %}
+        <section
+          id="mypage-guest"
+          class="mypage-guest"
+        >
+          <div class="mypage-guest-hero">
+            <span
+              class="mypage-guest-icon"
+              aria-hidden="true"
+              ><svg
+                viewBox="0 0 60 60"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              ><circle
+                  cx="30"
+                  cy="19"
+                  r="10"
+                /><path d="M12 52v-4a18 18 0 0 1 36 0v4" /></svg
+            ></span>
+            <h2
+              ><span class="mypage-guest-pc"
+                >ログインして、作品との出会いをもっと身近に。</span
+              ><span class="mypage-guest-mobile"
+                >描く・見つける・集める</span
+              ></h2
+            >
+            <p>ログインして、入札や購入履歴をまとめて管理。</p>
+            <div class="mypage-guest-actions">
+              <a
+                href="{{ url_for('login_page') }}"
+                class="account-button"
+                >ログイン</a
+              >
+              <a
+                href="{{ url_for('signup_page') }}"
+                class="account-button-secondary"
+                >新規登録</a
+              >
+            </div>
+          </div>
+          <div class="mypage-guest-benefits account-card">
+            <h3>ログインするとできること</h3>
+            <ul
+              ><li>入札中の作品と結果を確認</li
+              ><li>保有ポイントを確認</li
+              ><li>お気に入りの作品を保存</li></ul
+            >
+          </div>
+        </section>
+        {% else %}
+        <div
+          id="mypage-signed"
+        >
+          <div class="mypage-overview">
+            <section
+              class="mypage-profile mypage-card"
+              aria-label="プロフィール"
+            >
+              <div class="mypage-profile-person">
+                <span
+                  class="account-avatar mypage-avatar"
+                  data-account-avatar
+                  aria-hidden="true"
+                  >{{ (disp_name or username)[:1] }}</span
+                >
+                <div
+                  ><h2 data-profile-name>{{ disp_name or username }}</h2><p data-profile-handle>@{{ username }}</p
+                ></div>
+              </div>
+              <a
+                class="mypage-edit"
+                role="link" aria-disabled="true" title="未接続"
+                ><span>プロフィールを編集</span><span>編集</span></a
+              >
+            </section>
+            <section
+              class="mypage-points"
+              aria-labelledby="mypage-points-title"
+            >
+              <div
+                ><h2 id="mypage-points-title">保有ポイント</h2
+                ><p
+                  ><strong id="mypage-points-balance" aria-label="未取得">—</strong
+                  ><span>pt</span></p
+                ></div
+              >
+              <a
+                class="mypage-point-purchase"
+                role="link" aria-disabled="true" title="未接続"
+                >＋ チャージ</a
+              >
+              <a
+                class="mypage-point-history"
+                role="link" aria-disabled="true" title="未接続"
+                >ポイントの利用履歴を見る →</a
+              >
+              <p
+                class="mypage-coin-available"
+                id="mypage-coin-available"
+              ></p>
+            </section>
+          </div>
+
+          <section
+            class="mypage-stats mypage-card"
+            aria-label="ご利用状況"
+          >
+            <a href="{{ url_for('index', view='bids') }}"
+              ><strong id="mypage-active-count">{{ active_bids|length }}</strong
+              ><span>入札中</span></a
+            >
+            <a role="link" aria-disabled="true" title="未接続"
+              ><strong id="mypage-won-count" aria-label="未取得">—</strong
+              ><span>落札した作品</span></a
+            >
+            <a role="link" aria-disabled="true" title="未接続"
+              ><strong id="mypage-favorites-count" aria-label="未取得">—</strong
+              ><span>お気に入り</span></a
+            >
+          </section>
+          <h2 class="mypage-management-title">履歴・アカウント管理</h2>
+          <section
+            class="mypage-management"
+            aria-label="履歴・アカウント管理"
+          >
+            <a href="{{ url_for('index', view='bids') }}"
+              ><span
+                ><strong>入札履歴</strong
+                ><small>入札中の作品・結果を確認</small></span
+              ><span
+                id="mypage-bids-menu-count"
+                class="mypage-menu-count"
+              ></span
+              ><span
+                class="mypage-chevron"
+                aria-hidden="true"
+                >›</span
+              ></a
+            >
+            <a role="link" aria-disabled="true" title="未接続"
+              ><span
+                ><strong>落札した作品</strong
+                ><small>購入した作品を確認</small></span
+              ><span
+                class="mypage-chevron"
+                aria-hidden="true"
+                >›</span
+              ></a
+            >
+            <a role="link" aria-disabled="true" title="未接続"
+              ><span
+                ><strong>チャージ履歴</strong
+                ><small>ポイントの明細</small></span
+              ><span
+                class="mypage-chevron"
+                aria-hidden="true"
+                >›</span
+              ></a
+            >
+            <a role="link" aria-disabled="true" title="未接続"
+              ><span
+                ><strong>お気に入り</strong
+                ><small>保存した作品を見る</small></span
+              ><span
+                class="mypage-chevron"
+                aria-hidden="true"
+                >›</span
+              ></a
+            >
+            <a role="link" aria-disabled="true" title="未接続"
+              ><span
+                ><strong>アカウント設定</strong
+                ><small>アカウント情報の管理</small></span
+              ><span
+                class="mypage-chevron"
+                aria-hidden="true"
+                >›</span
+              ></a
+            >
+            <a
+              role="link" aria-disabled="true" title="未接続"
+              class="mypage-logout"
+              id="mypage-logout"
+              ><span
+                ><strong>ログアウト</strong
+                ><small>このアカウントからログアウト</small></span
+              ><span
+                class="mypage-chevron"
+                aria-hidden="true"
+                >›</span
+              ></a
+            >
+          </section>
+        </div>
+        {% endif %}
+      </div>
