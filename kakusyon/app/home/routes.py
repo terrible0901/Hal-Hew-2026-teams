@@ -4,16 +4,18 @@
 # 他人の下書き・非公開作品を表示しない。タグAND検索は検索機能と連携する。
 # 詳細は「設計・要件/関数定義.md」と「設計・要件/仕様決定事項-2026-10-26.md」を参照。
 
-from kakusyon.app import common
+from flask import render_template, request, session
 
-@common.app.route('/')
+from app.common import app, connect_sql
+
+@app.route('/')
 def index() :
     search_result = search()
     # Log inチェック
-    user_id = common.session.get('user_id')
+    user_id = session.get('user_id')
     if user_id :
-        username = common.session.get('username')
-        disp_name = common.session.get('disp_name')
+        username = session.get('username')
+        disp_name = session.get('disp_name')
 
         query = '''
         SELECT
@@ -26,11 +28,11 @@ def index() :
             ON auc.id = bids.auction_id
         JOIN artworks AS art
             ON art.id = auc.artwork_id
-        WHERE bids.user_id = %s
+        WHERE bids.bidder_id = %s
         '''
 
-        params = (user_id)
-        conn = common.connect_sql()
+        params = (user_id,)
+        conn = connect_sql()
         cursor= conn.cursor(dictionary=True)
         cursor.execute(query,params)
         user_bids = cursor.fetchall()
@@ -38,20 +40,19 @@ def index() :
         conn.close()
 
 
-        return common.render_template('index.html', search_result=search_result,log_in=True,username=username,disp_name=disp_name,user_bids=user_bids)
-    return common.render_template('index.html',search_result=search_result,log_in=False)
+        return render_template('index.html', search_result=search_result,log_in=True,username=username,disp_name=disp_name,user_bids=user_bids)
+    return render_template('index.html',search_result=search_result,log_in=False)
 def search() :
     # 検索機能
-    search = common.request.args.get('search') #HTMLに検索バーに"search"のnameをつけてください
+    search = request.args.get('search') #HTMLに検索バーに"search"のnameをつけてください
 
     query = '''
     SELECT 
-        art.id,
+        auc.id,
         art.title,
         usr.disp_name AS artist_name,
         auc.current_price,
-        art.image_path,# TO DO
-    # di index handle current bid buat logged user
+        art.image_path,
         art.draw_time,
         auc.end_time,
         TIMEDIFF(auc.end_time, NOW()) AS remaining_time
@@ -68,7 +69,7 @@ def search() :
         params = (f'%{search}%',f'%{search}%')
 
     query += ' ORDER BY end_time ASC'
-    conn = common.connect_sql()
+    conn = connect_sql()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(query, params)
     result = cursor.fetchall()

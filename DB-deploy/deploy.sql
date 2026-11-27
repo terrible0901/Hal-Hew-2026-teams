@@ -6,8 +6,7 @@ CREATE TABLE users (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(20) NOT NULL UNIQUE,
     disp_name VARCHAR(50) NOT NULL, -- set default="user{user.id}" with FLASK
-    #email VARCHAR(225) NOT NULL UNIQUE,
-    email VARCHAR(225) NOT NULL UNIQUE,
+    -- email VARCHAR(225) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     role ENUM('user','admin') NOT NULL DEFAULT 'user',
     point_balance INT UNSIGNED NOT NULL DEFAULT 0,
@@ -38,7 +37,7 @@ CREATE TABLE artworks (
 
 CREATE TABLE auctions (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    artwork_id BIGINT UNSIGNED NOT NULL UNIQUE,
+    artwork_id BIGINT UNSIGNED NOT NULL, -- not unique
     start_price INT UNSIGNED NOT NULL,
     current_price INT UNSIGNED NOT NULL,
     -- reserve_price INT UNSIGNED NULL,
@@ -67,7 +66,7 @@ CREATE TABLE auctions (
     
 CREATE TABLE bids (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    auction_id BIGINT UNSIGNED NOT NULL UNIQUE,
+    auction_id BIGINT UNSIGNED NOT NULL, -- not unique
     bidder_id BIGINT UNSIGNED NOT NULL,
     bid_amount INT UNSIGNED NOT NULL,
     is_auto_bid BOOLEAN NOT NULL DEFAULT FALSE,

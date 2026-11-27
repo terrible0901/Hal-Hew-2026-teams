@@ -7,12 +7,12 @@
 
 from flask import redirect, render_template, request, session, url_for
 
-from kakusyon.app.common import app,connect_sql
+from app.common import app,connect_sql
 
 
 @app.route('/item_detail')
 def item_detail():
-    art_id = request.args.get('id')
+    auc_id = request.args.get('id')
     query = '''
     SELECT
         art.id,
@@ -30,10 +30,10 @@ def item_detail():
     JOIN auctions as auc
         ON art.id = auc.artwork_id
     
-    WHERE art.id = %s
+    WHERE auc.id = %s
     '''
 
-    params = (art_id,)
+    params = (auc_id,)
     conn = connect_sql()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(query,params)
@@ -52,6 +52,7 @@ def post_bid():
     params = (art_id,user_id,bid_amount)
     conn = connect_sql()
     cursor = conn.cursor()
+    cursor.execute('SELECT from auctions')
     cursor.execute(query,params)
     conn.commit()
     cursor.close()
