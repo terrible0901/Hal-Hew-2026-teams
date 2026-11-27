@@ -316,7 +316,7 @@ startButton.addEventListener("click", () => {
 
   const query = new URLSearchParams({
 
-    time: {30: "short", 60: "mid", 3600: "long"}[seconds],
+    time: String(seconds),
 
 
 
@@ -324,13 +324,13 @@ startButton.addEventListener("click", () => {
 
 
 
-    mode,
+    mode: mode === "normal" ? "simple" : mode,
 
   });
 
 
 
-  window.location.href = `/draw/canvas?${query}`;
+  window.location.href = `/draw/start?${query}`;
 
 });
 

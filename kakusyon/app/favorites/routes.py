@@ -1,26 +1,26 @@
-# 実装予定の概要（実装済みを示すものではありません）
-# ログインユーザーの作品／競売のお気に入り登録・解除・一覧を扱う。
-# 作品と競売は分けて管理し、同一対象の重複登録を防ぐ。
-# 再出品で旧競売のお気に入りを新競売へ置き換えず、非公開情報への閲覧権限を確認する。
-# 詳細は「設計・要件/関数定義.md」と「設計・要件/仕様決定事項-2026-10-26.md」を参照。
-
-from flask import redirect, request, session, url_for
-
-from app.common import app, connect_sql
+from flask import abort, redirect, request, session, url_for
+from app.common import app, transaction
 
 
-@app.route('/favorite',methods=['POST'])
+@app.post("/favorite")
 def favorite():
-    user_id = session.get('user_id')
-    art_id = request.form.get('art_id')
-
-    query = 'INSERT INTO bookmarks (user_id,auction_id) VALUES (%s,%s)'
-    params = (user_id,art_id)
-    conn = connect_sql()
-    cursor = conn.cursor()
-    cursor.execute(query,params)
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
-    return redirect(url_for('item_detail', id=art_id))
+    user = session.get("user_id")
+    if not user:
+        return redirect(url_for("login_page"))
+    auction = request.form.get("art_id", type=int)
+    with transaction() as cur:
+        cur.execute("SELECT id FROM auctions WHERE id=%s", (auction,))
+        if not cur.fetchone():
+            abort(404)
+        if request.form.get("action") == "remove":
+            cur.execute(
+                "DELETE FROM bookmarks WHERE user_id=%s AND auction_id=%s",
+                (user, auction),
+            )
+        else:
+            cur.execute(
+                """INSERT INTO bookmarks(user_id,auction_id) VALUES(%s,%s)
+                           ON DUPLICATE KEY UPDATE user_id=VALUES(user_id)""",
+                (user, auction),
+            )
+    return redirect(url_for("item_detail", id=auction))

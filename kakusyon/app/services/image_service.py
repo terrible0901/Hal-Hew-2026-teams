@@ -1,40 +1,109 @@
-# 実装予定の概要（実装済みを示すものではありません）
-# PNG形式・寸法・容量を検証してファイルを保存する。
-# 合成画像は1,024×1,024px・5MiB以内。安全なファイル名と保存先を使用する。
-# 公開用画像と認可付き原寸データを区別する。正式保存の完了はPNGとZIPの両方で判定する。
-# 詳細は「設計・要件/関数定義.md」と「設計・要件/仕様決定事項-2026-10-26.md」を参照。
+from io import BytesIO
+import json
+import os
+from pathlib import Path
+from zipfile import ZipFile
 
-import os, uuid
-from flask import jsonify, request, send_from_directory
-from app.common import app
+from flask import abort, send_from_directory, session
+from PIL import Image, UnidentifiedImageError
 
-app.config["MAX_CONTENT_LENGTH"] = 5*1024*1024 
-UPLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "art")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+from app.common import ROOT, app, event_time, transaction
+from datetime import datetime, timezone
 
-def save_image(file_storage) -> str:
-    filename = f"{uuid.uuid4().hex}.png"
-    file_storage.save(os.path.join(UPLOAD_DIR, filename))
-    return filename #change to cloud key
+STORAGE = Path(os.environ.get("UPLOAD_FOLDER", "kakusyon/art"))
+if not STORAGE.is_absolute():
+    STORAGE = ROOT / STORAGE
+PUBLIC = STORAGE / "preview"
+PRIVATE = STORAGE / "original"
 
-@app.route('/upload_image')
-def upload_image():
-    file = request.files.get("image")
+
+def checked_png(file):
     if not file:
-        return jsonify(error="no image"), 400
-    if file.mimetype != "image/png":
-        return jsonify(error="PNG only"), 400
-    return jsonify(ok=True, filename=save_image(file))
+        raise ValueError("画像がありません。")
+    data = file.read(5 * 1024 * 1024 + 1)
+    if len(data) > 5 * 1024 * 1024:
+        raise ValueError("PNGは1枚5MiB以内です。")
+    try:
+        with Image.open(BytesIO(data)) as image:
+            if image.format != "PNG" or image.size != (1024, 1024):
+                raise ValueError("1024×1024のPNGが必要です。")
+            image.load()
+    except (OSError, UnidentifiedImageError, Image.DecompressionBombError) as exc:
+        raise ValueError("PNGを読み込めません。") from exc
+    return data
 
-# htmlにscriptを入れて
-# canvas.toBlob(async (blob) => {
-#   const fd = new FormData();
-#     fd.append("image", blob, "drawing.png");   // "image" must match request.files["image"]
 
-#     const res = await fetch("/upload", { method: "POST", body: fd });
-#     const data = await res.json();
-# }, "image/png");
+def write_drawing(key, files, metadata):
+    layers = files.getlist("layer")
+    if not isinstance(metadata, list) or not 1 <= len(metadata) == len(layers) <= 10:
+        raise ValueError("レイヤー構成が不正です。")
+    PRIVATE.mkdir(parents=True, exist_ok=True)
+    PUBLIC.mkdir(parents=True, exist_ok=True)
+    png = checked_png(files.get("image"))
+    (PRIVATE / (key + ".png")).write_bytes(png)
+    with ZipFile(PRIVATE / (key + ".zip"), "w") as archive:
+        manifest = []
+        for index, (file, layer) in enumerate(zip(layers, metadata)):
+            if (
+                not isinstance(layer, dict)
+                or not isinstance(layer.get("visible"), bool)
+                or not isinstance(layer.get("opacity"), (float, int))
+                or not 0 <= layer["opacity"] <= 1
+            ):
+                raise ValueError("レイヤー設定が不正です。")
+            filename = f"layer-{index + 1}.png"
+            archive.writestr(filename, checked_png(file))
+            manifest.append(
+                dict(
+                    file=filename,
+                    name=str(layer.get("name", ""))[:80],
+                    visible=layer["visible"],
+                    opacity=layer["opacity"],
+                )
+            )
+        archive.writestr("manifest.json", json.dumps(manifest, ensure_ascii=False))
+    with Image.open(BytesIO(png)) as image:
+        image.thumbnail((600, 600))
+        image.save(PUBLIC / (key + ".png"))
 
-@app.route("/drawings/<filename>")
+
+@app.get("/drawings/<filename>")
 def get_drawing(filename):
-    return send_from_directory(UPLOAD_DIR, filename)
+    if (PUBLIC / filename).is_file():
+        with transaction() as cur:
+            cur.execute(
+                "SELECT artist_id, status FROM artworks WHERE image_path=%s LIMIT 1",
+                (filename,),
+            )
+            row = cur.fetchone()
+        if (
+            not row
+            or row["status"] == "draft"
+            and row["artist_id"] != session.get("user_id")
+        ):
+            abort(404)
+        return send_from_directory(PUBLIC, filename)
+    # Existing installations stored public images here before private originals were introduced.
+    return send_from_directory(Path(__file__).parent / "art", filename)
+
+
+@app.get("/artworks/<int:art_id>/download/<kind>")
+def download_art(art_id, kind):
+    stop = event_time("APP_STOP")
+    if stop and datetime.now(timezone.utc) >= stop:
+        abort(410)
+    if kind not in ("png", "zip") or not session.get("user_id"):
+        abort(403)
+    with transaction() as cur:
+        cur.execute(
+            """SELECT a.image_path FROM artworks a JOIN drawing_files d ON d.artwork_id=a.id
+            WHERE a.id=%s AND (artist_id=%s OR EXISTS
+            (SELECT 1 FROM auctions WHERE artwork_id=a.id AND status='ended' AND winner_id=%s))""",
+            (art_id, session["user_id"], session["user_id"]),
+        )
+        row = cur.fetchone()
+    if not row:
+        abort(403)
+    return send_from_directory(
+        PRIVATE, Path(row["image_path"]).stem + "." + kind, as_attachment=True
+    )

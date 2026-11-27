@@ -66,9 +66,9 @@
         </nav>
         <section class="artwork-main-panel">
           <div class="artwork-image-panel">
-            <div class="artwork-image-frame artwork-watermark">
+            <div class="artwork-museum-frame artwork-watermark">
               <img
-                id="artwork-image"
+                id="artwork-image" data-original-size="{{ 1024 if result.has_files else '' }}"
                 {% if result.image_path %}src="{{ url_for('get_drawing', filename=result.image_path) }}"{% else %}hidden{% endif %}
                 alt="{{ result.title }}"
 
@@ -116,10 +116,10 @@
 
                   <div
                     class="auction-time"
-                    data-auction-deadline
+                    data-auction-deadline data-state-url="{{ url_for('auction_state',auction=result.auction_id) if result.auction_status == 'active' }}"
                   >
                     <span>◷ 終了まで</span
-                    ><strong data-auction-time>{% if result.remaining_time is not none and result.remaining_time.total_seconds is defined and result.remaining_time.total_seconds() <= 0 %}終了・結果確定待ち{% else %}{{ result.remaining_time if result.remaining_time is not none else "—" }}{% endif %}</strong>
+                    ><strong data-auction-time>{% if result.auction_status == 'cancelled' %}取消済み{% elif result.auction_status == 'ended' %}{{ '落札確定' if result.winner_id else '未落札' }}{% else %}{{ result.remaining_time if result.remaining_time is not none else "—" }}{% endif %}</strong>
                   </div>
                 </div>
               </div>
@@ -128,11 +128,15 @@
                 <h2>作品について</h2>
                 <p id="artwork-description">{{ result.description or "特になし" }}</p>
               </article>
-              <div data-bid-form>
+              {% set feedback = get_flashed_messages(with_categories=true) %}
+              {% if result.auction_status == 'active' and session.get('user_id') != result.artist_id %}
+              <form data-bid-form {% if session.get('user_id') %}data-action="bid" data-confirm="この金額で入札しますか？"{% endif %} action="{{ url_for('post_bid') }}" method="post">
+                <input type="hidden" name="art_id" value="{{ result.auction_id }}">
+                <input type="hidden" name="seen_price" value="{{ result.current_price }}">
                 <label
                   >入札金額<span class="bid-input-wrapper"
                     ><input
-                      data-bid-input name="bid_amount" disabled value="{{ result.current_price + 1 }}"
+                      data-bid-input name="bid_amount" min="{{ result.current_price + 1 }}" value="{{ result.current_price + 1 }}"
                       type="number"
                       step="1"
                       required
@@ -141,12 +145,22 @@
                   ></label
                 >
                 <button
-                  type="button" disabled
+                  type="submit"
                   class="bid-submit"
                 >
-                  この金額で入札する
+                  {{ 'この金額で入札する' if session.get('user_id') else 'ログインして入札する' }}
                 </button>
-              </div>
+              </form>
+              {% if session.get('user_id') %}
+              <details><summary>自動入札{% if auto %}（上限 {{ auto.max_amount }}pt）{% endif %}</summary>
+                <form method="post" action="{{ url_for('auto_bid',auction=result.auction_id) }}">
+                  <label>上限額（pt）<input type="number" name="maximum" min="{{ result.current_price + 1 }}" required></label>
+                  <button class="favorite-button">上限を設定</button>
+                  {% if auto %}<button class="favorite-button" name="stop" value="1" formnovalidate>自動入札を停止</button>{% endif %}
+                </form>
+              </details>
+              {% endif %}
+              {% endif %}
               <button
                 type="button"
                 data-buy-now
@@ -155,23 +169,43 @@
               >
                 即決で落札する
               </button>
-              <button
-                type="button"
-                data-favorite disabled
-                class="favorite-button"
-                aria-pressed="false"
-              >
-                ♡ お気に入りに追加
-              </button>
-              <p
-                data-auction-error
-                class="artwork-error">入札とお気に入りは未接続です。</p>
-              <p
-                data-auction-message
-                class="artwork-message"
-                role="status"
-                hidden
-              ></p>
+              {% for category, message in feedback if category == 'error' %}
+                <p class="artwork-error" role="alert">{{ message }}</p>
+              {% endfor %}
+              <form method="post" action="{{ url_for('favorite') }}">
+                <input type="hidden" name="art_id" value="{{ result.auction_id }}">
+                <input type="hidden" name="action" value="{{ 'remove' if result.favorite else 'add' }}">
+                <button class="favorite-button" aria-pressed="{{ 'true' if result.favorite else 'false' }}">
+                  {{ '♥ お気に入りから外す' if result.favorite else '♡ お気に入りに追加' }}
+                </button>
+              </form>
+              {% if session.get('user_id') == result.artist_id and result.auction_status == 'active' and not result.winner_id %}
+                <form method="post" action="{{ url_for('cancel_auction',auction=result.auction_id) }}" data-confirm="出品を取り消しますか？" data-action="cancel">
+                  <button class="favorite-button">出品を取り消す</button>
+                </form>
+              {% endif %}
+              {% if result.auction_status == 'cancelled' %}
+                <section class="cancelled-notice">
+                  <h2>この作品は出品を取り消しています</h2>
+                  <p>このオークションの入札受付は終了しました。</p>
+                  <a href="{{ url_for('index') }}">作品一覧へ戻る</a>
+                </section>
+              {% endif %}
+              {% if session.get('user_id') == result.artist_id and result.auction_status != 'active' and not result.winner_id %}
+                <form method="post" action="{{ url_for('relist',auction=result.auction_id) }}" data-confirm="この作品を再出品しますか？" data-action="relist">
+                  <label>開始価格（pt）<input type="number" min="0" required name="price" value="{{ result.current_price }}"></label>
+                  <label>開催時間<select name="minutes">{% for n in [5,10,15,20] %}<option value="{{ n }}" {{ 'selected' if n==10 }}>{{ n }}分</option>{% endfor %}</select></label>
+                  <button class="favorite-button">再出品する</button>
+                </form>
+              {% endif %}
+              {% if result.has_files and (session.get('user_id') == result.artist_id or (result.auction_status == 'ended' and result.winner_id and session.get('user_id') == result.winner_id)) %}
+                <a class="original-file" href="{{ url_for('download_art', art_id=result.id, kind='png') }}">原寸PNGを保存</a>
+                <a class="original-file" href="{{ url_for('download_art', art_id=result.id, kind='zip') }}">レイヤーZIPを保存</a>
+                {% if app_stop %}<small>取得期限 {{ app_stop.strftime("%Y/%m/%d %H:%M %Z") }}</small>{% endif %}
+              {% endif %}
+              {% for category, message in feedback if category != 'error' %}
+                <p class="artwork-message" role="status">{{ message }}</p>
+              {% endfor %}
             </div>
           </div>
         </section>
@@ -197,6 +231,14 @@
           <div class="related-grid" id="related-artworks" data-src="{{ url_for('index', view='related', exclude=request.args.get('id')) }}"></div>
           <p id="related-status" role="status"></p>
         </section>
+        <dialog id="auction-confirm" class="cancel-dialog" aria-labelledby="confirm-heading" aria-describedby="confirm-description">
+          <h2 id="confirm-heading"></h2>
+          <p id="confirm-description"></p>
+          <div class="cancel-dialog-actions">
+            <button type="button" id="keep-editing" autofocus>戻る</button>
+            <button type="button" id="confirm-action"></button>
+          </div>
+        </dialog>
         <script defer src="{{ url_for('static', filename='js/artwork-detail.js') }}"></script>
         {% endif %}
       </div>

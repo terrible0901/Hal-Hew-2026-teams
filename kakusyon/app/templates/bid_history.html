@@ -9,16 +9,20 @@
         <p>入札中 {{ active_bids|length }}件</p>
     </div>
     <nav class="trade-tabs" aria-label="入札状況">
-        <a href="{{ url_for('index', view='bids') }}" class="is-active" aria-current="page">入札中 {{ active_bids|length }}</a>
-        <a role="link" aria-disabled="true" title="落札結果は未接続です">落札済み</a>
-        <a role="link" aria-disabled="true" title="終了結果は未接続です">終了</a>
+        {% for tab,label in [('active','入札中'),('won','落札済み'),('ended','終了')] %}
+        <a href="{{ url_for('index',view='bids',tab=tab) }}" {% if request.args.get('tab','active')==tab %}class="is-active" aria-current="page"{% endif %}>{{ label }}</a>
+        {% endfor %}
     </nav>
-    {% if active_bids %}
-        {% set pages = (active_bids|length + 5) // 6 %}
+    {% set tab = request.args.get('tab','active') %}
+    {% set results = active_bids %}
+    {% if tab == 'won' %}{% set results=user_bids|selectattr('status','equalto','ended')|selectattr('winner_id','equalto',session.user_id)|list %}
+    {% elif tab=='ended' %}{% set results=user_bids|rejectattr('auction_id','in',active_bids|map(attribute='auction_id')|list)|list %}{% endif %}
+    {% if results %}
+        {% set pages = (results|length + 5) // 6 %}
         {% set requested = request.args.get('page', '1') %}
         {% set page = [pages, [1, requested|int if requested.isdecimal() else 1]|max]|min %}
         <div class="trade-rows">
-            {% for bid in active_bids[(page - 1) * 6 : page * 6] %}
+            {% for bid in results[(page - 1) * 6 : page * 6] %}
                 <article class="account-card trade-row">
                     <div class="trade-row-image artwork-watermark">
                         {% if bid.image_path %}
@@ -26,7 +30,7 @@
                         {% endif %}
                     </div>
                     <div class="trade-row-name"><h3>{{ bid.title }}</h3></div>
-                    <div class="trade-row-price"><strong>残り {{ bid.remaining_time }}</strong></div>
+                    <div class="trade-row-price"><strong>{{ '残り ' ~ bid.remaining_time if tab=='active' else '終了' }}</strong></div>
                     <a class="account-button-secondary trade-row-action" href="{{ url_for('item_detail', id=bid.auction_id) }}">詳細を見る</a>
                 </article>
             {% endfor %}
@@ -34,14 +38,14 @@
         {% if pages > 1 %}
             <nav class="trade-pagination" aria-label="一覧のページ">
                 {% for number in range(1, pages + 1) %}
-                    <a href="{{ url_for('index', view='bids', page=number) }}" {% if number == page %}aria-current="page"{% endif %}>{{ number }}</a>
+                    <a href="{{ url_for('index', view='bids', page=number,tab=tab) }}" {% if number == page %}aria-current="page"{% endif %}>{{ number }}</a>
                 {% endfor %}
             </nav>
         {% endif %}
     {% else %}
         <div class="account-card account-empty trade-empty">
             <span class="trade-empty-icon" aria-hidden="true">☰</span>
-            <h2>入札中の作品はありません</h2>
+            <h2>該当する作品はありません</h2>
             <p>気になる作品を見つけて、オークションに参加しましょう。</p>
             <a class="account-button" href="{{ url_for('index') }}">作品を探す</a>
         </div>

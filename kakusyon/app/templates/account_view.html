@@ -10,7 +10,7 @@
     {# TIMEDIFF arrives as a timedelta from mysql.connector. Group repeat bids on the same auction. #}
     {% set active_bids = [] %}
     {% for bid in user_bids|default([])|unique(attribute='auction_id') %}
-        {% if bid.remaining_time is not none and bid.remaining_time.total_seconds() > 0 %}
+        {% if bid.status == "active" and bid.remaining_time is not none and bid.remaining_time.total_seconds() > 0 %}
             {% set _ = active_bids.append(bid) %}
         {% endif %}
     {% endfor %}

@@ -118,6 +118,11 @@ try {
 
 
 
+const preview = document.querySelector("#complete-image");
+if (preview.dataset.source) {
+  image = preview.dataset.source;
+  theme = ({domae:"doumae", chara:"character"})[preview.dataset.theme] || preview.dataset.theme;
+}
 const selectedTheme = getDrawingTheme(theme);
 
 
@@ -155,7 +160,7 @@ createDrawingSaveDialog({
 
 
 
-  getImage: () => image,
+  getImage: () => preview.dataset.original || image,
 
 
 
@@ -199,4 +204,20 @@ updateDescriptionCount();
 
 
 
-document.querySelector("#complete-publish").addEventListener("submit", (event) => event.preventDefault());
+const form = document.querySelector("#complete-publish");
+const publish = document.querySelector("#complete-publish-button");
+publish.disabled = form.dataset.ready !== "1";
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!form.reportValidity() || publish.disabled) return;
+  publish.disabled = true;
+  try {
+    const response = await fetch(form.action, {method: "POST", body: new FormData(form)});
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error);
+    location.assign(result.redirect);
+  } catch (error) {
+    setError(error.message || "出品できませんでした。もう一度お試しください。");
+    publish.disabled = false;
+  }
+});

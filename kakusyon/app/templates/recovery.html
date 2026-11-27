@@ -1,0 +1,16 @@
+{% extends 'auth_layout.html' %}
+{% set page_title = 'アカウント復旧' %}
+{% block auth_form %}
+{% include 'flash_messages.html' %}
+{% if code %}
+<h2>復旧コードを保管してください</h2><p>この画面で一度だけ表示します。</p>
+<p><code>{{ code }}</code></p><a class="button primary" href="{{ url_for('index') }}">ホームへ</a>
+{% else %}
+<h2>パスワードを再設定</h2>
+<form method="post" class="auth-form">
+<label>ユーザー名<input name="username" required autocomplete="username"></label>
+<label>復旧コード<input name="code" required autocomplete="off"></label>
+<label>新しいパスワード<input name="password" required type="password" autocomplete="new-password"></label>
+<button class="button primary">再設定する</button></form>
+{% endif %}
+{% endblock %}

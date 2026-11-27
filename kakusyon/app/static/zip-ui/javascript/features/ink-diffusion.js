@@ -188,11 +188,11 @@ export class WaterInk {
 
     const drop = {
 
-      x: (x / 900) * size,
+      x: (x / 1024) * size,
 
 
 
-      y: (y / 900) * size,
+      y: (y / 1024) * size,
 
 
 

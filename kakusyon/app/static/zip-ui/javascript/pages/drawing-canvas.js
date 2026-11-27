@@ -1,3 +1,4 @@
+import { openDrawingCache } from "../features/drawing-cache.js";
 
 import {
 
@@ -275,7 +276,7 @@ function formatTime(value) {
 
 
 
-export function initDrawingPage() {
+export async function initDrawingPage() {
 
   const shell = document.getElementById("drawing-shell");
 
@@ -373,19 +374,39 @@ export function initDrawingPage() {
 
 
 
-  const params = new URLSearchParams(window.location.search);
+  const cache = await openDrawingCache(document.body.dataset.drawing).catch(() => null);
+  if (cache) {
+    const saved = await cache.read().catch(() => null);
+    if (saved) engine.restoreCheckpoint(saved);
+  }
+  let savePending = false;
+  let writesInFlight = 0;
+  window.addEventListener("beforeunload", event => {
+    if (writesInFlight && !frozen) event.preventDefault();
+  });
+  function checkpoint() {
+    if (!cache || savePending || frozen) return;
+    savePending = true;
+    queueMicrotask(() => {
+      savePending = false;
+      writesInFlight++;
+      cache.write(engine.checkpoint()).catch(() => {
+        element("drawing-cache-status").textContent = "この端末では途中状態を保存できません。";
+      }).finally(() => { writesInFlight--; });
+    });
+  }
 
 
 
-  const duration = getDrawingDuration(({short: 30, mid: 60, long: 3600}[params.get("time")] ?? Number(params.get("time")))) ?? 60;
+  const duration = getDrawingDuration(Number(document.body.dataset.seconds)) ?? 60;
 
 
 
-  const theme = getDrawingTheme({chara: "character", domae: "doumae"}[params.get("theme")] ?? params.get("theme"));
+  const theme = getDrawingTheme({chara: "character", domae: "doumae"}[document.body.dataset.theme] ?? document.body.dataset.theme);
 
 
 
-  const pro = params.get("mode") === "pro";
+  const pro = document.body.dataset.mode === "pro";
 
 
 
@@ -489,7 +510,7 @@ export function initDrawingPage() {
 
 
 
-  const startsAt = Date.now() + 4000;
+  const startsAt = Number(document.body.dataset.startsAt);
 
 
 
@@ -566,7 +587,7 @@ export function initDrawingPage() {
 
     return (
 
-      clock.countdown === null &&
+      !frozen && clock.countdown === null &&
 
       clock.remaining !== null &&
 
@@ -651,6 +672,7 @@ export function initDrawingPage() {
 
 
 
+    if (id !== null) checkpoint();
     if (id !== null && canvas.hasPointerCapture(id))
 
       canvas.releasePointerCapture(id);
@@ -1238,6 +1260,7 @@ export function initDrawingPage() {
 
 
     action(engine);
+    checkpoint();
 
 
 
@@ -1513,13 +1536,13 @@ export function initDrawingPage() {
 
 
 
-    element("layer-count").textContent = layers.length + "/4";
+    element("layer-count").textContent = layers.length + "/10";
 
 
 
     element("mobile-layer-label").textContent = pro
 
-      ? "レイヤー " + layers.length + "/4"
+      ? "レイヤー " + layers.length + "/10"
 
       : "操作";
 
@@ -1786,7 +1809,7 @@ export function initDrawingPage() {
 
     element("add-layer").disabled =
 
-      !enabled || engine.getLayerInfo().length >= 4;
+      !enabled || engine.getLayerInfo().length >= 10;
 
 
 
@@ -1801,6 +1824,7 @@ export function initDrawingPage() {
 
 
     element("undo-button").disabled = !enabled;
+    element("redo-button").disabled = !enabled || !engine.redoHistory.length;
 
 
 
@@ -2029,6 +2053,7 @@ export function initDrawingPage() {
       } else if (settings.tool === "bucket") {
 
         const changed = engine.bucketFill(position, settings.color);
+        if (changed) checkpoint();
 
 
 
@@ -2376,112 +2401,70 @@ export function initDrawingPage() {
 
 
 
-  function complete() {
+  let frozen = null;
+  let saving = false;
+  const png = surface => new Promise((resolve, reject) =>
+    surface.toBlob(blob => blob ? resolve(blob) : reject(new Error("PNGを作成できませんでした。")), "image/png"));
 
+  async function freezeDrawing() {
     finishStroke();
-
-
-
     engine.commitLayerOpacity();
-
-
-
     engine.compose();
-
-
-
-    const exported = document.createElement("canvas");
-
-
-
-    exported.width = exported.height = 600;
-
-
-
-    const context = exported.getContext("2d");
-
-
-
-    try {
-
-      if (!context) throw new Error("画像の保存を準備できませんでした。");
-
-
-
-      context.fillStyle = "#ffffff";
-
-
-
-      context.fillRect(0, 0, 600, 600);
-
-
-
-      context.drawImage(canvas, 0, 0, 600, 600);
-
-
-
-      const image = exported.toDataURL("image/jpeg", 0.88);
-
-
-
-      sessionStorage.setItem(storageKeys.lastDrawing, image);
-
-
-
-      sessionStorage.setItem(
-
-        draftCreationStorageKey,
-
-
-
-        encodeDraftCreation(image, new Date().toISOString()),
-
-      );
-
-
-
-      sessionStorage.setItem(
-
-        storageKeys.lastDrawingDuration,
-
-
-
-        encodeDraftDuration(image, duration),
-
-      );
-
-
-
-      sessionStorage.setItem(storageKeys.lastTheme, theme.id);
-
-
-
-      window.location.href = "/draw/complete";
-
-    } catch (error) {
-
-      element("drawing-save-error").textContent =
-
-        error instanceof Error
-
-          ? error.message
-
-          : "画像を保存できませんでした。保存設定と容量を確認してください。";
-
-
-
-      element("drawing-save-error").hidden = false;
-
+    const data = new FormData();
+    data.append("drawing", document.body.dataset.drawing);
+    data.append("metadata", JSON.stringify(engine.getLayerInfo()));
+    const image = await png(canvas);
+    data.append("image", image, "drawing.png");
+    for (const layer of engine.layers) {
+      const surface = document.createElement("canvas");
+      surface.width = surface.height = canvas.width;
+      engine.renderLayerTo(layer, surface.getContext("2d"));
+      data.append("layer", await png(surface), "layer.png");
     }
-
+    return data;
   }
 
-
-
+  async function complete() {
+    if (saving) return;
+    saving = true;
+    const button = element("confirm-finish");
+    button.disabled = true;
+    try {
+      frozen ??= freezeDrawing();
+      const data = await frozen;
+      const signed = document.body.dataset.signed === "1";
+      if (signed) {
+        const freeze = await fetch("/draw/freeze", {method:"POST", body:new URLSearchParams({drawing:document.body.dataset.drawing})});
+        if (!freeze.ok) throw new Error("完成状態を記録できません。再度保存してください。");
+        const response = await fetch("/draw/save", {method:"POST", body:data});
+        if (!response.ok) {
+          const detail = await response.json().catch(() => ({}));
+          throw new Error(detail.error || "通信に失敗しました。もう一度保存してください。");
+        }
+      } else {
+        sessionStorage.setItem(storageKeys.lastDrawing, canvas.toDataURL("image/png"));
+        sessionStorage.setItem(storageKeys.lastTheme, theme.id);
+      }
+      if (cache) await cache.clear().catch(() => {});
+      window.location.assign("/draw/complete?drawing=" + document.body.dataset.drawing);
+    } catch (error) {
+      const message = element("drawing-save-error");
+      message.hidden = false;
+      message.textContent = error.message + " ";
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = "drawing.png";
+      link.textContent = "PNGを端末に保存";
+      message.append(link);
+    } finally {
+      saving = false;
+      button.disabled = false;
+    }
+  }
 
   function tick() {
 
-    const next = drawingClock(Date.now(), startsAt, duration);
+    const next = drawingClock(Number(document.body.dataset.finished) ? startsAt + duration * 1000 : Date.now(), startsAt, duration);
 
 
 
@@ -2547,9 +2530,10 @@ export function initDrawingPage() {
 
 
 
-    if (clock.remaining === 0 && dialogKind !== "finish")
-
+    if (clock.remaining === 0 && dialogKind !== "finish") {
       openDialog("finish");
+      if (!frozen) complete();
+    }
 
 
 
@@ -2673,6 +2657,7 @@ export function initDrawingPage() {
 
 
     engine.undo();
+    checkpoint();
 
 
 
@@ -2683,6 +2668,13 @@ export function initDrawingPage() {
 
 
   element("undo-button").addEventListener("click", undoDrawing);
+  element("redo-button").addEventListener("click", () => {
+    if (!sessionEnabled()) return;
+    finishStroke();
+    engine.redo();
+    renderLayers();
+    checkpoint();
+  });
 
 
 

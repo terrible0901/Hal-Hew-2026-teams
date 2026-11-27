@@ -2,7 +2,7 @@
 {% extends 'auth_layout.html' %}
 {% block auth_form %}
 <h2 id="auth-title">アカウントを作成</h2>
-<p class="intro">表示名とユーザー名を登録してください。</p>
+<p class="intro">登録後に復旧コードを表示します。パスワードと復旧コードの両方を失うと復旧できません。</p>
 {% include 'flash_messages.html' %}
 <form class="auth-form" action="{{ url_for('sign_up') }}" method="post">
     <label for="display_name">表示名 <small>任意</small></label>
