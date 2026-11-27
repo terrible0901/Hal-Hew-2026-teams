@@ -62,9 +62,10 @@
         </form>{% endif %}
         {% if visible_artworks %}
             {% from 'artwork_card.html' import artwork_card %}
-            <div class="artwork-grid">
+            <div class="artwork-grid" data-auction-list>
                 {% for artwork in visible_artworks %}{{ artwork_card(artwork) }}{% endfor %}
             </div>
+            <script type="module" src="{{ url_for('static', filename='js/auction-countdown.js') }}"></script>
         {% else %}
             <p class="empty">表示できる作品はありません。</p>
         {% endif %}

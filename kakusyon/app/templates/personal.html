@@ -11,8 +11,12 @@
 {% block notices %}{% if not profile_saved %}{{ super() }}{% endif %}{% endblock %}
 {% block content %}
 <section class="account-main">
-  <div class="account-page-heading"><h1>{{ page_title }}</h1><a href="{{ url_for('index',view='mypage') }}">マイページへ戻る</a></div>
+  <div class="account-page-heading">
+    {% if view in ('favorites', 'won') %}<p>ホーム / マイページ / {{ page_title }}</p>{% endif %}
+    <h1>{{ page_title }}</h1><a href="{{ url_for('index',view='mypage') }}">マイページへ戻る</a>
+  </div>
   {% if view in ('favorites','won') %}
+    {% if search_result %}
     <div class="trade-gallery-count">{{ search_result|length }}作品</div>
     <div class="trade-cards">{% for item in search_result %}
       <article class="account-card trade-card">
@@ -30,8 +34,21 @@
         <p class="trade-card-artist trade-muted">作者 {{ item.artist_name }}</p><strong class="trade-card-price">{{ item.current_price }}pt</strong>
         <a class="account-button-secondary trade-card-action" href="{{ url_for('item_detail',id=item.id) }}">作品を見る</a>
       </article>
-    {% else %}<div class="account-card account-empty"><p>作品はまだありません。</p><a class="account-button" href="{{ url_for('index') }}">作品を探す</a></div>{% endfor %}</div>
+    {% endfor %}</div>
     {% if view == 'favorites' %}<p id="favorite-error" role="alert" hidden></p>{% endif %}
+    {% else %}
+    <section class="account-card account-empty trade-empty">
+      <span class="trade-empty-icon" aria-hidden="true">☰</span>
+      {% if view == 'favorites' %}
+      <h2>お気に入りはまだありません</h2>
+      <p>作品のハートを押すと、ここに保存できます。</p>
+      {% else %}
+      <h2>落札した作品はありません</h2>
+      <p>落札した作品はここに表示されます。</p>
+      {% endif %}
+      <a class="account-button" href="{{ url_for('index') }}">作品を探す</a>
+    </section>
+    {% endif %}
   {% elif view == 'notifications' %}
     {% if notices %}<form method="post" action="{{ url_for('read_notifications') }}"><input type="hidden" name="through" value="{{ notices[0].id }}"><button class="button">すべて既読にする</button></form>{% endif %}
     <ul class="account-ledger">{% for n in notices %}<li>{{ '未読 · ' if not n.is_read }}{{ n.created_at }}　{{ n.message }}

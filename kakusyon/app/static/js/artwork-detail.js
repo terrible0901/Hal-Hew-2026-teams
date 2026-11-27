@@ -1,3 +1,5 @@
+import {startCountdowns} from "./auction-countdown.js";
+
 const artworkImage = document.getElementById("artwork-image");
 function showImageSize() {
     if (!artworkImage.naturalWidth) return;
@@ -14,12 +16,15 @@ async function loadRelatedArtworks() {
     const status = document.getElementById("related-status");
     try {
         const response = await fetch(grid.dataset.src);
+        const receivedAt = Date.now();
         if (!response.ok) throw new Error();
         const page = new DOMParser().parseFromString(await response.text(), "text/html");
         const cards = page.querySelectorAll(".artwork-card-shell");
         grid.replaceChildren(...cards);
-        if (!cards.length) status.textContent = "ほかに表示できる作品はありません。";
+        startCountdowns(grid, receivedAt, loadRelatedArtworks);
+        status.textContent = cards.length ? "" : "ほかに表示できる作品はありません。";
     } catch {
+        grid.replaceChildren();
         status.textContent = "ほかの作品を読み込めませんでした。";
     }
 }

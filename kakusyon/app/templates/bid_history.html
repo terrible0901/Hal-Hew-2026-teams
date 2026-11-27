@@ -3,25 +3,24 @@
     <h1>入札履歴</h1>
     <a href="{{ url_for('index', view='mypage') }}">マイページへ戻る →</a>
 </div>
+{% set tab = request.args.get('tab', 'active') %}
+{% if tab not in ('active', 'won', 'ended') %}{% set tab = 'active' %}{% endif %}
 <section aria-labelledby="trade-heading">
     <div class="trade-list-heading">
         <h2 id="trade-heading">入札した作品</h2>
         <p>入札中 {{ active_bids|length }}件</p>
     </div>
     <nav class="trade-tabs" aria-label="入札状況">
-        {% for tab,label in [('active','入札中'),('won','落札済み'),('ended','終了')] %}
-        <a href="{{ url_for('index',view='bids',tab=tab) }}" {% if request.args.get('tab','active')==tab %}class="is-active" aria-current="page"{% endif %}>{{ label }}</a>
+        {% for key,label in [('active','入札中'),('won','落札済み'),('ended','終了')] %}
+        <a href="{{ url_for('index',view='bids',tab=key) }}" {% if key == tab %}class="is-active" aria-current="page"{% endif %}>{{ label }}</a>
         {% endfor %}
     </nav>
-    {% set tab = request.args.get('tab','active') %}
-    {% set results = active_bids %}
-    {% if tab == 'won' %}{% set results=user_bids|selectattr('status','equalto','ended')|selectattr('winner_id','equalto',session.user_id)|list %}
-    {% elif tab=='ended' %}{% set results=user_bids|rejectattr('auction_id','in',active_bids|map(attribute='auction_id')|list)|list %}{% endif %}
+    {% set results = {'active': active_bids, 'won': won_bids, 'ended': ended_bids}[tab] %}
     {% if results %}
         {% set pages = (results|length + 5) // 6 %}
         {% set requested = request.args.get('page', '1') %}
         {% set page = [pages, [1, requested|int if requested.isdecimal() else 1]|max]|min %}
-        <div class="trade-rows">
+        <div class="trade-rows" data-auction-list>
             {% for bid in results[(page - 1) * 6 : page * 6] %}
                 <article class="account-card trade-row">
                     <div class="trade-row-image artwork-watermark">
@@ -30,11 +29,16 @@
                         {% endif %}
                     </div>
                     <div class="trade-row-name"><h3>{{ bid.title }}</h3></div>
-                    <div class="trade-row-price"><strong>{{ '残り ' ~ bid.remaining_time if tab=='active' else '終了' }}</strong></div>
+                    <div class="trade-row-price">
+                        {% if tab == 'won' %}<strong>落札済み</strong>
+                        {% elif tab == 'ended' %}<strong>終了</strong>
+                        {% else %}<strong data-remaining-seconds="{{ bid.remaining_time.total_seconds()|int }}">残り {{ bid.remaining_time }}</strong>{% endif %}
+                    </div>
                     <a class="account-button-secondary trade-row-action" href="{{ url_for('item_detail', id=bid.auction_id) }}">詳細を見る</a>
                 </article>
             {% endfor %}
         </div>
+        {% if tab == 'active' %}<script type="module" src="{{ url_for('static', filename='js/auction-countdown.js') }}"></script>{% endif %}
         {% if pages > 1 %}
             <nav class="trade-pagination" aria-label="一覧のページ">
                 {% for number in range(1, pages + 1) %}

@@ -9,9 +9,15 @@
 {% block content %}
     {# TIMEDIFF arrives as a timedelta from mysql.connector. Group repeat bids on the same auction. #}
     {% set active_bids = [] %}
+    {% set won_bids = [] %}
+    {% set ended_bids = [] %}
     {% for bid in user_bids|default([])|unique(attribute='auction_id') %}
         {% if bid.status == "active" and bid.remaining_time is not none and bid.remaining_time.total_seconds() > 0 %}
             {% set _ = active_bids.append(bid) %}
+        {% elif bid.status == 'ended' and bid.winner_id == session.user_id %}
+            {% set _ = won_bids.append(bid) %}
+        {% else %}
+            {% set _ = ended_bids.append(bid) %}
         {% endif %}
     {% endfor %}
     <div class="account-main {{ 'mypage-main' if account_view == 'mypage' }}">
