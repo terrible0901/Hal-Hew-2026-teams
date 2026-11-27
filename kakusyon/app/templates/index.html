@@ -35,29 +35,34 @@
         </dialog>
     </section>
     <script defer src="{{ url_for('static', filename='js/advertisements.js') }}"></script>
+    {% set duration = request.args.get('duration', '') %}
+    {% set visible_artworks = (search_result | selectattr('draw_time', 'equalto', duration) | list)
+        if duration in ('short', 'mid', 'long') else search_result %}
     <section aria-labelledby="catalog-title">
         <div class="catalog-heading">
             <div class="catalog-label">
                 <span class="hot-label">HOT</span>
                 <h1 id="catalog-title">{{ '検索結果' if request.args.get('search') else '注目の作品' }}</h1>
-                <span>{{ search_result | length }}件</span>
+                <span>{{ visible_artworks | length }}件</span>
             </div>
             <div class="duration-tabs" role="group" aria-label="描画時間">
-                <a aria-current="true" href="{{ url_for('index', category=request.args.get('category'), search=request.args.get('search')) }}">全商品</a>
-                <button type="button" disabled>30秒</button>
-                <button type="button" disabled>1分</button>
-                <button type="button" disabled>1時間</button>
+                {% for value, label in [('', '全商品'), ('short', '30秒'), ('mid', '1分'), ('long', '1時間')] %}
+                    <a href="{{ url_for('index', duration=value or none, category=request.args.get('category'), search=request.args.get('search')) }}"
+                       {% if value == duration %}aria-current="true"{% endif %}>{{ label }}</a>
+                {% endfor %}
             </div>
         </div>
-        {% if search_result %}
+        {% if visible_artworks %}
             <ul class="artwork-grid">
-                {% for artwork in search_result %}
+                {% for artwork in visible_artworks %}
                     <li class="artwork">
                         {% if artwork.image_path %}
-                            <img src="{{ url_for('get_drawing', filename=artwork.image_path) }}" alt="" loading="lazy">
+                            <a class="artwork-picture" href="{{ url_for('item_detail', id=artwork.id) }}" aria-label="{{ artwork.title }}の詳細">
+                                <img src="{{ url_for('get_drawing', filename=artwork.image_path) }}" alt="" loading="lazy">
+                            </a>
                         {% endif %}
                         <div class="artwork-info">
-                            <h2>{{ artwork.title }}</h2>
+                            <h2><a class="artwork-link" href="{{ url_for('item_detail', id=artwork.id) }}">{{ artwork.title }}</a></h2>
                             <p>作者 {{ artwork.artist_name }}</p>
                             <strong>{{ '{:,}'.format(artwork.current_price) }}pt</strong>
                             {% if artwork.remaining_time is not none %}

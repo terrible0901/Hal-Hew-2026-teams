@@ -8,11 +8,14 @@
 </head>
 <body class="{{ 'auth-page' if auth_page else 'home-page' }}">
     <header class="site-header">
-        <a class="brand" href="{{ url_for('index') }}">
+        <a class="brand" aria-label="描クション ホーム" href="{{ url_for('index') }}">
             <img src="{{ url_for('static', filename='img/kakushon-logo.png') }}" alt="">
             <span>描クション</span>
         </a>
         <form class="search" action="{{ url_for('index') }}" method="get" role="search">
+            {% if request.args.get('duration') %}
+                <input type="hidden" name="duration" value="{{ request.args.get('duration') }}">
+            {% endif %}
             <input type="search" name="search" aria-label="作品名・作家名から検索"
                    placeholder="作品名・作家名から検索" value="{{ request.args.get('search', '') }}">
         </form>
@@ -35,7 +38,7 @@
         <nav aria-label="カテゴリー">
             <strong>カテゴリー</strong>
             {% for value, label in [('','全商品'), ('free','free'), ('vehicle','乗り物'), ('animal','動物'), ('insect','昆虫'), ('plant','植物'), ('food','食べ物'), ('chara','キャラクター'), ('domae','堂前和希')] %}
-                <a href="{{ url_for('index', category=value, search=request.args.get('search')) }}"
+                <a href="{{ url_for('index', category=value, search=request.args.get('search'), duration=request.args.get('duration')) }}"
                    {% if request.args.get('category', '') == value %}aria-current="true"{% endif %}>{{ label }}<span class="category-chevron" aria-hidden="true">›</span></a>
             {% endfor %}
         </nav>
@@ -49,6 +52,6 @@
         {% block content %}{% endblock %}
     </main>
     {% include 'mobile_navigation.html' %}
-    <button class="draw-start" type="button" disabled>お絵描き<br>スタート</button>
+    <a class="draw-start" href="{{ url_for('setup') }}">お絵描き<br>スタート</a>
 </body>
 </html>

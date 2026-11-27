@@ -197,7 +197,8 @@ input, button { font: inherit; }
 .catalog-label .hot-label { padding: 4px 8px; background: #d84349; color: white; font-size: 12px; font-weight: 750; }
 .duration-tabs { display: flex; align-items: center; gap: 4px; background: #eaf4f2; border-radius: 9px; padding: 3px; }
 .duration-tabs a, .duration-tabs button { flex: 1; padding: 7px 12px; border: 0; border-radius: 100px; background: none; text-align: center; white-space: nowrap; font-size: 13px; font-weight: 700; }
-.duration-tabs a { background: var(--accent); color: white; text-decoration: none; }
+.duration-tabs a { color: var(--muted); text-decoration: none; }
+.duration-tabs a[aria-current] { background: var(--accent); color: white; }
 .duration-tabs button { color: var(--muted); }
 .password-field { position: relative; }
 .password-field input { padding-right: 44px; }
@@ -238,3 +239,11 @@ button:disabled { cursor: default; }
     .mobile-home-bottom [aria-current] { background: #e0f2ed; color: #177d70; }
     .mobile-home-bottom svg { width: 24px; height: 24px; }
 }
+.artwork-link { color: inherit; text-decoration: none; }
+.artwork-link:hover { text-decoration: underline; }
+@media (min-width: 761px) {
+    .draw-start { display: grid; place-content: center; text-align: center; text-decoration: none; }
+}
+
+.artwork-picture { display: block; margin: 4px; border: 4px ridge #a89579; }
+.artwork-picture img { width: 100%; }

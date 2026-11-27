@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+    <title>お絵描きの設定 | 描クション</title>
+    <link
+      rel="icon"
+      href="/static/zip-ui/favicon.svg"
+      type="image/svg+xml"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/zip-ui/stylecss/pages/drawing-settings.css"
+    />
+    <script
+      type="module"
+      src="/static/zip-ui/javascript/pages/drawing-settings.js"
+    ></script>
+  </head>
+  <body>
+
+    <main class="setup-shell">
+      <img
+        id="setup-background"
+        src="/static/zip-ui/images/drawing-theme-food.png"
+        alt=""
+        class="setup-background"
+      />
+      <div
+        class="setup-background-shade"
+        aria-hidden="true"
+      ></div>
+      <header class="setup-header">
+        <a
+          href="/"
+          class="setup-brand"
+          aria-label="描クション ホーム"
+        >
+          <img
+            src="/static/zip-ui/images/kakushon-logo.png"
+            alt=""
+          />
+          <span>描クション</span>
+        </a>
+        <a
+          href="/"
+          class="setup-home"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path d="m12 19-7-7 7-7M5 12h14" />
+          </svg>
+          トップへ戻る
+        </a>
+      </header>
+      <div class="setup-main">
+        <section
+          class="setup-panel"
+          aria-labelledby="setup-title"
+        >
+          <h1 id="setup-title">
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                d="M12 3a9 9 0 1 0 0 18h1.5a2.5 2.5 0 0 0 0-5H13a1.5 1.5 0 0 1 0-3h2a6 6 0 0 0 0-12Z"
+              />
+              <path d="M7 8h.01M12 6h.01M17 8h.01M6 13h.01" />
+            </svg>
+            お絵描きの設定
+          </h1>
+          <div class="setup-mode-current">
+            <span id="setup-mode-label">通常モード</span>
+            <button
+              id="setup-change-mode"
+              type="button"
+            >
+              モードを変更
+            </button>
+          </div>
+
+          <fieldset class="setup-fieldset">
+            <legend>
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="9"
+                />
+                <path d="M12 7v5l3 2" />
+              </svg>
+              制限時間
+            </legend>
+            <div
+              id="setup-times"
+              class="setup-time-options"
+            ></div>
+          </fieldset>
+          <fieldset class="setup-fieldset">
+            <legend>お題</legend>
+            <div
+              id="setup-themes"
+              class="setup-theme-options"
+            ></div>
+          </fieldset>
+          <div class="setup-random-area">
+            <button
+              id="setup-random"
+              type="button"
+              class="setup-random"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="m18 14 4 4-4 4m0-20 4 4-4 4M2 18h2c6 0 8-12 14-12h4M2 6h2c2 0 4 2 5 4m6 4c1 2 2 4 5 4h2"
+                />
+              </svg>
+              ランダムで選ぶ
+            </button>
+            <p
+              id="setup-random-result"
+              role="status"
+              class="setup-random-result"
+              hidden
+            ></p>
+          </div>
+          <button
+            id="setup-start"
+            type="button"
+            class="setup-start"
+            disabled
+          >
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="m7 4 14 8-14 8Z" />
+            </svg>
+            スタート
+          </button>
+        </section>
+      </div>
+
+      <dialog
+        id="setup-mode-dialog"
+        class="setup-mode-dialog"
+        aria-labelledby="setup-mode-title"
+      >
+        <h2
+          id="setup-mode-title"
+          class="setup-mode-title"
+        >
+          描くモードを選ぶ
+        </h2>
+        <div class="setup-mode-options">
+          <button
+            type="button"
+            data-mode="normal"
+            autofocus
+          >
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="m16 3 5 5L8 21H3v-5Zm-2 2 5 5" />
+            </svg>
+            <strong>通常モード</strong>
+          </button>
+          <button
+            type="button"
+            data-mode="pro"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                d="m12 3 10 5-10 5L2 8Zm-10 9 10 5 10-5M2 16l10 5 10-5"
+              />
+            </svg>
+            <strong>プロモード</strong>
+          </button>
+        </div>
+        <a
+          href="/"
+          class="setup-mode-home"
+          >トップへ戻る</a
+        >
+      </dialog>
+    </main>
+    <template id="setup-time-template">
+      <button
+        type="button"
+        aria-pressed="false"
+        class="setup-option setup-time"
+      ></button>
+    </template>
+    <template id="setup-theme-template">
+      <button
+        type="button"
+        aria-pressed="false"
+        class="setup-option setup-theme"
+      ></button>
+    </template>
+    <noscript>お絵描きの設定にはJavaScriptを有効にしてください。</noscript>
+  </body>
+</html>

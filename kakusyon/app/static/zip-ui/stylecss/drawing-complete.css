@@ -1,0 +1,597 @@
+
+
+
+
+.complete-shell {
+
+  min-height: 100dvh;
+
+  background: #edf7f4;
+
+  color: #183c48;
+}
+
+
+.complete-shell [hidden] {
+
+  display: none !important;
+}
+
+
+.complete-header {
+
+  border-bottom: 1px solid #d3e1de;
+
+  background: #fff;
+}
+
+
+.complete-header-inner {
+
+  display: flex;
+
+  height: 64px;
+
+  max-width: 1200px;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin: 0 auto;
+
+  padding: 0 24px;
+
+  gap: 12px;
+}
+
+
+.complete-brand {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  font-size: 24px;
+
+  font-weight: 900;
+
+  letter-spacing: -0.06em;
+}
+
+
+.complete-brand img {
+
+  width: 40px;
+
+  height: 40px;
+
+  object-fit: contain;
+}
+
+
+.complete-home {
+
+  display: flex;
+
+  min-height: 44px;
+
+  align-items: center;
+
+  gap: 8px;
+
+  border: 1px solid #aac0bb;
+
+  border-radius: 6px;
+
+  padding: 8px 16px;
+
+  font-size: 14px;
+
+  font-weight: 700;
+}
+
+
+.complete-shell svg {
+
+  width: 20px;
+
+  height: 20px;
+
+  flex-shrink: 0;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 2;
+
+  stroke-linecap: round;
+
+  stroke-linejoin: round;
+}
+
+
+.complete-home svg {
+
+  width: 16px;
+
+  height: 16px;
+}
+
+
+.complete-content {
+
+  max-width: 1200px;
+
+  margin: 0 auto;
+
+  padding: 16px 24px;
+}
+
+
+.complete-workspace {
+
+  display: grid;
+
+  width: 100%;
+
+  border: 1px solid #9fb7b2;
+
+  background: #fff;
+
+  box-shadow: 0 12px 24px #00000012;
+}
+
+
+.complete-preview {
+
+  display: grid;
+
+  place-items: center;
+
+  min-width: 0;
+
+  padding: 24px;
+
+  background: #dfe9e6;
+}
+
+
+.complete-frame {
+
+  width: 100%;
+
+  max-width: 560px;
+}
+
+
+.complete-empty {
+
+  display: grid;
+
+  width: 100%;
+
+  max-width: 560px;
+
+  aspect-ratio: 1;
+
+  place-items: center;
+
+  border: 1px dashed #92aaa5;
+
+  padding: 24px;
+
+  background: #fff;
+
+  text-align: center;
+
+  color: #687f85;
+
+  font-weight: 700;
+}
+
+
+.complete-form {
+
+  display: flex;
+
+  min-width: 0;
+
+  flex-direction: column;
+
+  gap: 14px;
+
+  padding: 24px;
+}
+
+
+.complete-form-heading {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+
+.complete-form-heading h1 {
+
+  margin: 0;
+
+  font-size: 24px;
+
+  font-weight: 900;
+}
+
+
+.complete-theme {
+
+  display: inline-flex;
+
+  border-radius: 999px;
+
+  padding: 6px 12px;
+
+  background: #e9f6f3;
+
+  color: #08756c;
+
+  font-size: 12px;
+
+  font-weight: 900;
+}
+
+
+.complete-fields {
+
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+
+.complete-field {
+
+  min-width: 0;
+}
+
+
+.complete-label {
+
+  display: block;
+
+  color: #4f686f;
+
+  font-size: 13px;
+
+  font-weight: 800;
+}
+
+
+.complete-input {
+
+  width: 100%;
+
+  height: 42px;
+
+  margin-top: 6px;
+
+  border: 1px solid #9fb7b2;
+
+  border-radius: 6px;
+
+  padding: 0 12px;
+
+  background: #fff;
+
+  font-size: 16px;
+
+  outline: none;
+}
+
+
+.complete-input:focus {
+
+  border-color: #159184;
+
+  box-shadow: 0 0 0 3px #1591841a;
+}
+
+
+.complete-price-wrap {
+
+  position: relative;
+}
+
+
+.complete-price {
+
+  padding-right: 34px;
+
+  text-align: right;
+
+  font-size: 16px;
+
+  font-weight: 800;
+}
+
+
+.complete-price-wrap span {
+
+  position: absolute;
+
+  top: calc(50% + 3px);
+
+  right: 12px;
+
+  transform: translateY(-50%);
+
+  color: #688087;
+
+  font-weight: 700;
+}
+
+
+.complete-description-heading {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 8px;
+}
+
+
+.complete-description-count {
+
+  color: #61777d;
+
+  font-size: 11px;
+
+  white-space: nowrap;
+}
+
+
+.complete-description-count.is-invalid {
+
+  color: #c43f42;
+}
+
+
+.complete-description {
+
+  display: block;
+
+  height: 80px;
+
+  resize: vertical;
+
+  min-height: 64px;
+
+  max-height: 140px;
+
+  padding: 9px 12px;
+
+  line-height: 1.5;
+}
+
+
+.complete-error {
+
+  border-radius: 6px;
+
+  padding: 10px 12px;
+
+  background: #fff0ef;
+
+  color: #c43f42;
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+
+.complete-publish-button,
+.complete-restart {
+
+  display: flex;
+
+  width: 100%;
+
+  min-height: 46px;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  border-radius: 6px;
+
+  font-weight: 800;
+}
+
+
+.complete-publish-button {
+
+  padding: 10px 16px;
+
+  background: #e95355;
+
+  color: #fff;
+
+  box-shadow: 0 4px 0 #b93639;
+
+  font-size: 17px;
+
+  cursor: pointer;
+}
+
+
+.complete-publish-button:hover {
+
+  background: #f26560;
+}
+
+
+.complete-publish-button:active {
+
+  transform: translateY(3px);
+
+  box-shadow: none;
+}
+
+
+.complete-publish-button:disabled {
+
+  cursor: wait;
+
+  opacity: 0.6;
+}
+
+
+.complete-form > .drawing-save-trigger {
+
+  min-height: 46px;
+
+  margin: 0;
+
+  padding: 10px 16px;
+}
+
+
+.complete-restart {
+
+  border: 1px solid #a9bdb8;
+
+  padding: 10px 16px;
+
+  color: #526b72;
+}
+
+
+.complete-restart:hover {
+
+  background: #f1f5f4;
+}
+
+
+.complete-shell button:focus-visible,
+.complete-shell a:focus-visible {
+
+  outline: 3px solid #176378;
+
+  outline-offset: 4px;
+}
+
+
+
+
+
+@media (min-width: 1024px) {
+
+  .complete-content {
+
+    display: flex;
+
+    height: calc(100dvh - 65px);
+
+    min-height: 610px;
+
+    align-items: center;
+  }
+
+  .complete-workspace {
+
+    grid-template-columns: 1.05fr 0.95fr;
+
+    min-height: 580px;
+
+    max-height: 100%;
+  }
+
+  .complete-preview {
+
+    padding: 24px;
+  }
+
+  .complete-frame {
+
+    max-width: min(100%, calc(100dvh - 150px));
+  }
+
+  .complete-form {
+
+    justify-content: center;
+  }
+}
+
+
+
+
+
+@media (max-width: 1023px) {
+
+  .complete-preview {
+
+    padding: 14px;
+  }
+
+  .complete-frame,
+  .complete-empty {
+
+    width: min(44vw, 250px);
+  }
+
+  .complete-form {
+
+    padding: 18px;
+
+    gap: 12px;
+  }
+}
+
+
+@media (max-width: 639px) {
+
+  .complete-header-inner {
+
+    padding-inline: 12px;
+  }
+
+  .complete-brand {
+
+    font-size: 20px;
+  }
+
+  .complete-home {
+
+    padding-inline: 10px;
+  }
+
+  .complete-content {
+
+    padding: 10px;
+  }
+
+  .complete-form {
+
+    padding: 14px;
+  }
+
+  .complete-label {
+
+    font-size: 12px;
+  }
+}
