@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page_title }} | 描クション</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+</head>
+<body class="{{ 'auth-page' if auth_page else 'home-page' }}">
+    <header class="site-header">
+        <a class="brand" href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='img/kakushon-logo.png') }}" alt="">
+            <span>描クション</span>
+        </a>
+        <form class="search" action="{{ url_for('index') }}" method="get" role="search">
+            <input type="search" name="search" aria-label="作品名・作家名から検索"
+                   placeholder="作品名・作家名から検索" value="{{ request.args.get('search', '') }}">
+        </form>
+        <nav class="account-links" aria-label="アカウント">
+            {% if log_in or session.get('user_id') %}
+                <span>{{ disp_name or session.get('disp_name') or username or session.get('username') }}</span>
+            {% else %}
+                <a class="button" href="{{ url_for('login_page') }}">ログイン</a>
+                <a class="button primary" href="{{ url_for('signup_page') }}">新規登録</a>
+            {% endif %}
+        </nav>
+    </header>
+    {% if auth_page %}
+        <header class="mobile-heading">
+            <a href="{{ url_for('index') }}" aria-label="ホームへ戻る">←</a>
+            <strong>{{ page_title }}</strong>
+        </header>
+    {% endif %}
+    <aside class="sidebar">
+        <nav aria-label="カテゴリー">
+            <strong>カテゴリー</strong>
+            {% for value, label in [('','全商品'), ('free','free'), ('vehicle','乗り物'), ('animal','動物'), ('insect','昆虫'), ('plant','植物'), ('food','食べ物'), ('chara','キャラクター'), ('domae','堂前和希')] %}
+                <a href="{{ url_for('index', category=value, search=request.args.get('search')) }}"
+                   {% if request.args.get('category', '') == value %}aria-current="true"{% endif %}>{{ label }}<span class="category-chevron" aria-hidden="true">›</span></a>
+            {% endfor %}
+        </nav>
+    </aside>
+    <main class="site-main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <p class="notice {{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}">{{ message }}</p>
+            {% endfor %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+    {% include 'mobile_navigation.html' %}
+    <button class="draw-start" type="button" disabled>お絵描き<br>スタート</button>
+</body>
+</html>
