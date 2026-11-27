@@ -108,7 +108,7 @@
                   >作品名</label
                 >
                 <input
-                  id="complete-title" name="title"
+                  id="complete-title"
                   name="title"
                   required
                   value="わたしの作品"
@@ -127,7 +127,6 @@
                   id="complete-artist" value="{{ session.get('disp_name') or session.get('username') or 'ゲスト' }}" readonly
                   name="artist"
                   required
-                  value="guest"
                   maxlength="30"
                   autocomplete="nickname"
                   class="complete-input"
@@ -142,18 +141,17 @@
                 >
                 <div class="complete-price-wrap">
                   <input
-                    id="complete-price" name="price"
+                    id="complete-price"
                     name="price"
                     required
                     type="number"
                     inputmode="numeric"
-                    min="1"
-                    max="1000"
+                    min="0"
                     step="1"
                     value="1000"
                     class="complete-input complete-price"
                   />
-                  <span aria-hidden="true">C</span>
+                  <span aria-hidden="true">pt</span>
                 </div>
               </div>
 
@@ -174,7 +172,7 @@
                     step="1"
                     class="complete-input complete-price"
                   />
-                  <span aria-hidden="true">C</span>
+                  <span aria-hidden="true">pt</span>
                 </div>
               </div>
             </div>
@@ -195,7 +193,7 @@
               </div>
 
               <textarea
-                id="complete-description" name="description"
+                id="complete-description"
                 name="description"
                 rows="3"
                 class="complete-input complete-description"
@@ -211,7 +209,8 @@
             ></p>
 
             <button
-              id="complete-publish-button" disabled
+              id="complete-publish-button"
+              disabled
               type="submit"
               class="complete-publish-button"
             >

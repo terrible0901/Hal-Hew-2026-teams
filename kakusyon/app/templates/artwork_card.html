@@ -1,0 +1,29 @@
+{% macro artwork_card(artwork, related=false) %}
+<article class="artwork-card-shell">
+    <a class="artwork-card" href="{{ url_for('item_detail', id=artwork.id) }}">
+        {% if artwork.image_path %}
+            <div class="artwork-museum-frame artwork-watermark">
+                <img class="artwork-card-image" src="{{ url_for('get_drawing', filename=artwork.image_path) }}" alt="" loading="lazy">
+            </div>
+        {% endif %}
+        <div class="artwork-card-info">
+            {% if related %}<h3 class="artwork-card-title">{{ artwork.title }}</h3>{% else %}<h2 class="artwork-card-title">{{ artwork.title }}</h2>{% endif %}
+            <p class="artwork-card-artist">作者 <span class="artwork-card-artist-name">{{ artwork.artist_name }}</span></p>
+            <div class="artwork-card-footer">
+                <strong class="artwork-card-price">{{ '{:,}'.format(artwork.current_price) }}pt</strong>
+                {% if artwork.remaining_time is not none %}
+                    <span class="artwork-card-time">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6h5"/></svg>
+                        <span>残り {{ artwork.remaining_time }}</span>
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    </a>
+    <button class="mobile-favorite" type="button" disabled aria-label="お気に入り（未接続）" title="お気に入りは未接続です">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+            <path d="M20.8 4.6a5.6 5.6 0 0 0-8 0L12 5.4l-.8-.8a5.6 5.6 0 0 0-8 8L12 22l8.8-9.4a5.6 5.6 0 0 0 0-8Z"/>
+        </svg>
+    </button>
+</article>
+{% endmacro %}

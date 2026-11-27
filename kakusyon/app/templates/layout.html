@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ page_title }} | 描クション</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+    {% block page_styles %}{% endblock %}
 </head>
-<body class="{{ 'auth-page' if auth_page else 'home-page' }}">
+<body class="{{ 'auth-page' if auth_page or account_view else 'home-page' }}{% if account_view %} account-page {{ account_class }}{% endif %}">
     <header class="site-header">
         <a class="brand" aria-label="描クション ホーム" href="{{ url_for('index') }}">
             <img src="{{ url_for('static', filename='img/kakushon-logo.png') }}" alt="">
@@ -20,6 +21,7 @@
                    placeholder="作品名・作家名から検索" value="{{ request.args.get('search', '') }}">
         </form>
         <nav class="account-links" aria-label="アカウント">
+            <a class="button mypage-link" href="{{ url_for('index', view='mypage') }}">マイページ</a>
             {% if log_in or session.get('user_id') %}
                 <span>{{ disp_name or session.get('disp_name') or username or session.get('username') }}</span>
             {% else %}
@@ -28,9 +30,9 @@
             {% endif %}
         </nav>
     </header>
-    {% if auth_page %}
+    {% if auth_page or account_view %}
         <header class="mobile-heading">
-            <a href="{{ url_for('index') }}" aria-label="ホームへ戻る">←</a>
+            <a href="{{ url_for('index', view='mypage') if account_view == 'bids' or auth_page else url_for('index') }}" aria-label="{{ 'マイページ' if account_view == 'bids' or auth_page else 'ホーム' }}へ戻る">←</a>
             <strong>{{ page_title }}</strong>
         </header>
     {% endif %}
@@ -44,14 +46,10 @@
         </nav>
     </aside>
     <main class="site-main">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% for category, message in messages %}
-                <p class="notice {{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}">{{ message }}</p>
-            {% endfor %}
-        {% endwith %}
+        {% if not auth_page %}{% include 'flash_messages.html' %}{% endif %}
         {% block content %}{% endblock %}
     </main>
     {% include 'mobile_navigation.html' %}
-    <a class="draw-start" href="{{ url_for('setup') }}">お絵描き<br>スタート</a>
+    <a class="draw-start" href="{{ url_for('setup') }}"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1.4-3.4 1.5 1.5 0 0 1 1.1-2.6H18a3 3 0 0 0 3-3 9 9 0 0 0-9-9Z"/><circle cx="7.5" cy="10" r=".6"/><circle cx="10" cy="6.5" r=".6"/><circle cx="15" cy="7" r=".6"/><circle cx="17" cy="11" r=".6"/></svg><span>お絵描き<br>スタート</span></a>
 </body>
 </html>

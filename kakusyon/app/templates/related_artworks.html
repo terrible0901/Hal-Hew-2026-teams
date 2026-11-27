@@ -1,0 +1,3 @@
+{% from 'artwork_card.html' import artwork_card %}
+{% set other = search_result|rejectattr('id', 'equalto', request.args.get('exclude')|int)|list %}
+{% for artwork in other[:3] %}{{ artwork_card(artwork, related=true) }}{% endfor %}

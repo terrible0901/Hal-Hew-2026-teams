@@ -1,0 +1,20 @@
+{% set account_view = 'bids' if log_in and request.args.get('view') == 'bids' else 'mypage' %}
+{% set page_title = '入札履歴' if account_view == 'bids' else 'マイページ' %}
+{% set account_class = 'account-trades-page' if account_view == 'bids' else 'mypage-page' %}
+{% extends 'layout.html' %}
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='zip-ui/stylecss/account-common.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='zip-ui/stylecss/' ~ ('account-trades' if account_view == 'bids' else 'mypage') ~ '.css') }}">
+{% endblock %}
+{% block content %}
+    {# TIMEDIFF arrives as a timedelta from mysql.connector. Group repeat bids on the same auction. #}
+    {% set active_bids = [] %}
+    {% for bid in user_bids|default([])|unique(attribute='auction_id') %}
+        {% if bid.remaining_time is not none and bid.remaining_time.total_seconds() > 0 %}
+            {% set _ = active_bids.append(bid) %}
+        {% endif %}
+    {% endfor %}
+    <div class="account-main {{ 'mypage-main' if account_view == 'mypage' }}">
+        {% if account_view == 'bids' %}{% include 'bid_history.html' %}{% else %}{% include 'mypage.html' %}{% endif %}
+    </div>
+{% endblock %}

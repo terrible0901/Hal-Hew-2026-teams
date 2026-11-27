@@ -52,6 +52,7 @@
       <div
         id="artwork-content"
         class="artwork-content"
+        {% if not result %}hidden{% endif %}
       >
         {% if result %}
         {% set category = {'free':'free','vehicle':'乗り物','animal':'動物','insect':'昆虫','plant':'植物','food':'食べ物','chara':'キャラクター','domae':'堂前和希'}.get(result.category, result.category) %}
@@ -118,7 +119,7 @@
                     data-auction-deadline
                   >
                     <span>◷ 終了まで</span
-                    ><strong data-auction-time>{{ result.remaining_time if result.remaining_time is not none else "—" }}</strong>
+                    ><strong data-auction-time>{% if result.remaining_time is not none and result.remaining_time.total_seconds is defined and result.remaining_time.total_seconds() <= 0 %}終了・結果確定待ち{% else %}{{ result.remaining_time if result.remaining_time is not none else "—" }}{% endif %}</strong>
                   </div>
                 </div>
               </div>
@@ -174,7 +175,31 @@
             </div>
           </div>
         </section>
+        <section class="artwork-secondary">
+          <article class="artwork-description">
+            <h2>作品情報</h2>
+            <dl id="artwork-facts">
+              <div><dt>カテゴリー</dt><dd>{{ category }}</dd></div>
+              {% if result.created_at %}<div><dt>制作日</dt><dd>{{ result.created_at }}</dd></div>{% endif %}
+              <div id="artwork-size" hidden><dt>サイズ</dt><dd></dd></div>
+            </dl>
+          </article>
+          <aside class="artwork-artist">
+            <p class="artist-label">ARTIST</p>
+            <div class="artist-summary">
+              <span id="artist-initial">{{ (result.disp_name or '')[:1]|upper }}</span>
+              <div><h2>{{ result.disp_name }}</h2></div>
+            </div>
+          </aside>
+        </section>
+        <section class="related-section">
+          <div class="related-heading"><h2>ほかの注目作品</h2><a href="{{ url_for('index') }}">すべて見る</a></div>
+          <div class="related-grid" id="related-artworks" data-src="{{ url_for('index', view='related', exclude=request.args.get('id')) }}"></div>
+          <p id="related-status" role="status"></p>
+        </section>
+        <script defer src="{{ url_for('static', filename='js/artwork-detail.js') }}"></script>
         {% endif %}
+      </div>
     </main>
   </body>
 </html>

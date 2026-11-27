@@ -1,80 +1,15 @@
-{% set page_title = 'ホーム' %}
-{% extends 'layout.html' %}
-{% block content %}
-<div class="catalog">
-    {% set ads = [
-        ('理科', 'img/science-ad.png', '先生と一緒にカラフルな実験を楽しむ子どもたち'),
-        ('アート', 'img/ads/art-workshop.png', '水彩絵の具と筆を使って制作するアトリエ'),
-        ('音楽', 'img/ads/music-session.png', '青い照明に包まれたギターとキーボードのステージ'),
-        ('写真', 'img/ads/photo-gallery.png', '海や山の写真を展示した明るいギャラリー'),
-        ('カフェ', 'img/ads/campus-cafe.png', 'いちごタルトとアイスラテが並ぶカフェのテーブル')
-    ] %}
-    <section class="advertisements" aria-label="広告">
-        <div class="banner">
-            {% for category, path, description in ads %}
-                <button type="button" class="ad-slide" data-category="{{ category }}" aria-label="{{ category }}の広告を拡大" {{ 'hidden' if not loop.first }}>
-                    <img src="{{ url_for('static', filename=path) }}" alt="{{ description }}" {{ 'loading=lazy' if not loop.first }}>
-                </button>
-            {% endfor %}
-            <button type="button" class="ad-arrow ad-prev" aria-label="前の広告">‹</button>
-            <button type="button" class="ad-arrow ad-next" aria-label="次の広告">›</button>
-        </div>
-        <div class="ad-dots" aria-label="広告を選択">
-            {% for category, path, description in ads %}
-                <button type="button" aria-label="{{ category }}の広告" aria-pressed="{{ 'true' if loop.first else 'false' }}"></button>
-            {% endfor %}
-        </div>
-        <dialog class="ad-dialog" aria-labelledby="ad-title" aria-describedby="ad-description">
-            <h2 id="ad-title" class="ad-screen-reader">広告</h2>
-            <p id="ad-description" class="ad-screen-reader">画像や背景をクリックするかEscキーで閉じられます。</p>
-            <button type="button" class="ad-modal-stage" aria-label="広告を閉じる" autofocus>
-                <span class="ad-modal-poster">
-                    <img class="ad-modal-image" alt="" draggable="false">
-                </span>
-            </button>
-        </dialog>
-    </section>
-    <script defer src="{{ url_for('static', filename='js/advertisements.js') }}"></script>
-    {% set duration = request.args.get('duration', '') %}
-    {% set visible_artworks = (search_result | selectattr('draw_time', 'equalto', duration) | list)
-        if duration in ('short', 'mid', 'long') else search_result %}
-    <section aria-labelledby="catalog-title">
-        <div class="catalog-heading">
-            <div class="catalog-label">
-                <span class="hot-label">HOT</span>
-                <h1 id="catalog-title">{{ '検索結果' if request.args.get('search') else '注目の作品' }}</h1>
-                <span>{{ visible_artworks | length }}件</span>
-            </div>
-            <div class="duration-tabs" role="group" aria-label="描画時間">
-                {% for value, label in [('', '全商品'), ('short', '30秒'), ('mid', '1分'), ('long', '1時間')] %}
-                    <a href="{{ url_for('index', duration=value or none, category=request.args.get('category'), search=request.args.get('search')) }}"
-                       {% if value == duration %}aria-current="true"{% endif %}>{{ label }}</a>
-                {% endfor %}
-            </div>
-        </div>
-        {% if visible_artworks %}
-            <ul class="artwork-grid">
-                {% for artwork in visible_artworks %}
-                    <li class="artwork">
-                        {% if artwork.image_path %}
-                            <a class="artwork-picture" href="{{ url_for('item_detail', id=artwork.id) }}" aria-label="{{ artwork.title }}の詳細">
-                                <img src="{{ url_for('get_drawing', filename=artwork.image_path) }}" alt="" loading="lazy">
-                            </a>
-                        {% endif %}
-                        <div class="artwork-info">
-                            <h2><a class="artwork-link" href="{{ url_for('item_detail', id=artwork.id) }}">{{ artwork.title }}</a></h2>
-                            <p>作者 {{ artwork.artist_name }}</p>
-                            <strong>{{ '{:,}'.format(artwork.current_price) }}pt</strong>
-                            {% if artwork.remaining_time is not none %}
-                                <small>残り {{ artwork.remaining_time }}</small>
-                            {% endif %}
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p class="empty">表示できる作品はありません。</p>
-        {% endif %}
-    </section>
-</div>
-{% endblock %}
+{# The existing home route also receives authentication redirects and the user's bid list. #}
+{% if request.args.get('view') == 'related' %}
+    {% include 'related_artworks.html' %}
+{% else %}
+    {% set errors = get_flashed_messages(category_filter=['error']) %}
+    {% if 'Invalid username or Password' in errors %}
+        {% extends 'login.html' %}
+    {% elif 'Username already taken.' in errors or 'Please fill in the password.' in errors or 'Passwords do not match. Please try again.' in errors %}
+        {% extends 'signup.html' %}
+    {% elif request.args.get('view') in ('mypage', 'bids') %}
+        {% extends 'account_view.html' %}
+    {% else %}
+        {% extends 'catalog.html' %}
+    {% endif %}
+{% endif %}
