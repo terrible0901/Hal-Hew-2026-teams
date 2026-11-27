@@ -71,7 +71,7 @@
               hidden
             >
               <img
-                id="complete-image"
+                id="complete-image" data-source="{{ url_for('get_drawing', filename=draft.image_path) if draft }}" data-original="{{ url_for('download_art',art_id=draft.id,kind='png') if draft }}" data-theme="{{ draft.category if draft }}"
                 alt="完成した描画作品"
               />
             </div>
@@ -87,10 +87,10 @@
           <form
             id="complete-publish"
             class="complete-form"
-            novalidate
+            method="post" action="{{ url_for('post_art') }}" data-ready="{{ 1 if draft else 0 }}"
           >
             <div class="complete-form-heading">
-              <h1>出品情報</h1><p>出品送信・即決価格・QR共有は未接続です。</p>
+              <h1>出品情報</h1><p>{% if draft %}非表示を含む全レイヤーが落札者に渡ります。{% elif session.get("user_id") %}保存済みの下書きを選んでください。{% else %}出品にはログインしてから描画してください。{% endif %}</p>
 
               <span
                 id="complete-theme"
@@ -156,27 +156,18 @@
               </div>
 
               <div class="complete-field">
-                <label
-                  for="complete-buy-now"
-                  class="complete-label"
-                  >即決価格（任意）</label
-                >
-                <div class="complete-price-wrap">
-                  <input
-                    id="complete-buy-now" disabled
-                    name="buyNowPrice"
-                    type="number"
-                    inputmode="numeric"
-                    min="1"
-                    max="100000000"
-                    step="1"
-                    class="complete-input complete-price"
-                  />
-                  <span aria-hidden="true">pt</span>
-                </div>
+                <label for="duration" class="complete-label">開催時間</label>
+                <select name="minutes" id="duration" class="complete-input">
+                  {% for n in [5,10,15,20] %}<option value="{{ n }}" {{ 'selected' if n == 10 }}>{{ n }}分</option>{% endfor %}
+                </select>
+                <input type="hidden" name="drawing_id" value="{{ draft.drawing_id if draft }}">
+
               </div>
             </div>
 
+            {% if tags %}<fieldset class="complete-description-field"><legend>タグ</legend>
+              {% for tag in tags %}<label><input type="checkbox" name="tags" value="{{ tag.id }}">{{ tag.name }}</label>{% endfor %}
+            </fieldset>{% endif %}
             <div class="complete-description-field">
               <div class="complete-description-heading">
                 <label
@@ -302,7 +293,7 @@
 
         <button
           type="button"
-          data-save-create-qr hidden
+          data-save-create-qr {% if not draft %}hidden{% endif %}
           class="drawing-save-share"
           disabled
         >

@@ -3,8 +3,8 @@
 # 画面受付・DB処理・入札の業務処理は各機能へ分ける。
 # 詳細は「設計・要件/関数定義.md」と「設計・要件/仕様決定事項-2026-10-26.md」を参照。
 
-from app import common
+from app.common import app
 
 if __name__ == '__main__':
-    print(common.app.url_map)
-    common.app.run(debug=True)
+    print(app.url_map)
+    app.run()

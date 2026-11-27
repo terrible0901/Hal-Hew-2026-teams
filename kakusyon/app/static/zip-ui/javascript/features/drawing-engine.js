@@ -353,7 +353,7 @@ export class DrawingEngine {
 
 
 
-    this.merged.width = this.merged.height = 900;
+    this.merged.width = this.merged.height = 1024;
 
 
 
@@ -365,7 +365,7 @@ export class DrawingEngine {
 
 
 
-    this.textureCanvas.width = this.textureCanvas.height = 900;
+    this.textureCanvas.width = this.textureCanvas.height = 1024;
 
 
 
@@ -385,7 +385,7 @@ export class DrawingEngine {
 
 
 
-    canvas.width = canvas.height = 900;
+    canvas.width = canvas.height = 1024;
 
 
 
@@ -491,7 +491,10 @@ export class DrawingEngine {
 
 
 
+  redoHistory = [];
+
   remember(item) {
+    this.redoHistory = [];
 
     this.history.push(item);
 
@@ -501,7 +504,7 @@ export class DrawingEngine {
 
 
 
-    while (this.history.length > 12 || bytes > 48 * 1024 * 1024)
+    while (this.history.length > 50 || bytes > 48 * 1024 * 1024)
 
       bytes -= this.history.shift().bytes;
 
@@ -511,7 +514,7 @@ export class DrawingEngine {
 
   rememberPixels(layer) {
 
-    const pixels = layer.context.getImageData(0, 0, 900, 900);
+    const pixels = layer.context.getImageData(0, 0, 1024, 1024);
 
 
 
@@ -564,7 +567,7 @@ export class DrawingEngine {
 
 
 
-    target.clearRect(0, 0, 900, 900);
+    target.clearRect(0, 0, 1024, 1024);
 
 
 
@@ -572,7 +575,7 @@ export class DrawingEngine {
 
 
 
-    target.drawImage(layer.ink.render(), 0, 0, 900, 900);
+    target.drawImage(layer.ink.render(), 0, 0, 1024, 1024);
 
 
 
@@ -630,7 +633,7 @@ export class DrawingEngine {
 
 
 
-    const reference = this.context.getImageData(0, 0, 900, 900);
+    const reference = this.context.getImageData(0, 0, 1024, 1024);
 
 
 
@@ -647,7 +650,7 @@ export class DrawingEngine {
 
 
 
-    const pixels = this.mergedContext.getImageData(0, 0, 900, 900);
+    const pixels = this.mergedContext.getImageData(0, 0, 1024, 1024);
 
 
 
@@ -757,7 +760,7 @@ export class DrawingEngine {
 
     return colorAt(
 
-      this.context.getImageData(0, 0, 900, 900),
+      this.context.getImageData(0, 0, 1024, 1024),
 
 
 
@@ -810,11 +813,11 @@ export class DrawingEngine {
 
 
 
-      900,
+      1024,
 
 
 
-      900,
+      1024,
 
     );
 
@@ -840,7 +843,7 @@ export class DrawingEngine {
 
 
 
-    const pixels = layer.context.getImageData(0, 0, 900, 900);
+    const pixels = layer.context.getImageData(0, 0, 1024, 1024);
 
 
 
@@ -864,7 +867,7 @@ export class DrawingEngine {
 
       preview.height =
 
-        900;
+        1024;
 
 
 
@@ -993,7 +996,7 @@ export class DrawingEngine {
 
 
 
-    target.clearRect(0, 0, 900, 900);
+    target.clearRect(0, 0, 1024, 1024);
 
 
 
@@ -1114,7 +1117,7 @@ export class DrawingEngine {
 
 
 
-      .getImageData(0, 0, 900, 900);
+      .getImageData(0, 0, 1024, 1024);
 
 
 
@@ -1126,7 +1129,7 @@ export class DrawingEngine {
 
 
 
-      .getImageData(0, 0, 900, 900);
+      .getImageData(0, 0, 1024, 1024);
 
 
 
@@ -1251,7 +1254,7 @@ export class DrawingEngine {
 
 
 
-    if (this.layers.length >= 4) return;
+    if (this.layers.length >= 10) return;
 
 
 
@@ -1349,7 +1352,7 @@ export class DrawingEngine {
 
 
 
-      bytes: 900 * 900 * 4 + layer.ink.memoryBytes,
+      bytes: 1024 * 1024 * 4 + layer.ink.memoryBytes,
 
     });
 
@@ -1626,7 +1629,7 @@ export class DrawingEngine {
 
 
 
-    layer.context.clearRect(0, 0, 900, 900);
+    layer.context.clearRect(0, 0, 1024, 1024);
 
 
 
@@ -1640,85 +1643,74 @@ export class DrawingEngine {
 
 
 
-  undo() {
+  undo() { this.stepHistory(this.history, this.redoHistory); }
+  redo() { this.stepHistory(this.redoHistory, this.history); }
 
+  stepHistory(source, destination) {
     this.cancelSelection();
-
-
-
     this.commitLayerOpacity();
-
-
-
     this.end();
-
-
-
-    const item = this.history.pop();
-
-
-
+    const item = source.pop();
     if (!item) return;
-
-
-
+    const inverse = {...item, activeId:this.activeId};
     if (item.kind === "pixels") {
-
+      inverse.pixels = item.layer.context.getImageData(0, 0, 1024, 1024);
+      inverse.ink = item.layer.ink.snapshot();
       item.layer.context.putImageData(item.pixels, 0, 0);
-
-
-
       item.layer.ink.restore(item.ink);
-
-
-
       this.activeId = item.layer.id;
-
     } else if (item.kind === "add") {
-
-      this.layers = this.layers.filter(
-
-        (layer) => layer.id !== item.layer.id,
-
-      );
-
-
-
+      inverse.kind = "remove";
+      inverse.index = this.layers.indexOf(item.layer);
+      this.layers.splice(inverse.index, 1);
       this.activeId = item.activeId;
-
     } else if (item.kind === "remove") {
-
+      inverse.kind = "add";
       this.layers.splice(item.index, 0, item.layer);
-
-
-
       this.activeId = item.activeId;
-
     } else if (item.kind === "order") {
-
-      const byId = new Map(this.layers.map((layer) => [layer.id, layer]));
-
-
-
-      this.layers = item.ids.map((id) => byId.get(id));
-
+      inverse.ids = this.layers.map(layer => layer.id);
+      const byId = new Map(this.layers.map(layer => [layer.id, layer]));
+      this.layers = item.ids.map(id => byId.get(id));
     } else if (item.kind === "opacity") {
-
+      inverse.opacity = item.layer.opacity;
       item.layer.opacity = item.opacity;
-
     } else {
-
       item.layer.visible = !item.layer.visible;
-
     }
-
-
-
+    destination.push(inverse);
     this.compose();
-
   }
 
+  checkpoint() {
+    const all = new Set(this.layers);
+    for (const item of [...this.history, ...this.redoHistory]) if (item.layer) all.add(item.layer);
+    const pack = entries => entries.map(item => ({...item, layer:item.layer?.id}));
+    return {
+      activeId:this.activeId, nextId:this.nextId, order:this.layers.map(layer=>layer.id),
+      layers:[...all].map(({id,name,visible,opacity,context,ink})=>({
+        id,name,visible,opacity,pixels:context.getImageData(0,0,1024,1024),ink:ink.snapshot()
+      })),
+      history:pack(this.history), redo:pack(this.redoHistory)
+    };
+  }
 
+  restoreCheckpoint(saved) {
+    const layers = new Map();
+    for (const {id,name,visible,opacity,pixels,ink} of saved.layers) {
+      const layer = Object.assign(this.createLayer(), {id,name,visible,opacity});
+      layer.context.putImageData(pixels,0,0);
+      layer.ink.restore(ink);
+      layers.set(id,layer);
+    }
+    this.layers = saved.order.map(id=>layers.get(id));
+    this.activeId = saved.activeId;
+    this.nextId = saved.nextId;
+    const unpack = entries => entries.map(item => ({...item,layer:layers.get(item.layer)}));
+    this.history = unpack(saved.history);
+    this.redoHistory = unpack(saved.redo);
+    this.compose();
+  }
 
   flattenInk(layer) {
 
@@ -1734,7 +1726,7 @@ export class DrawingEngine {
 
 
 
-    layer.context.drawImage(layer.ink.render(), 0, 0, 900, 900);
+    layer.context.drawImage(layer.ink.render(), 0, 0, 1024, 1024);
 
 
 
@@ -2223,7 +2215,7 @@ export class DrawingEngine {
 
     const right = Math.min(
 
-        900,
+        1024,
 
 
 
@@ -2231,7 +2223,7 @@ export class DrawingEngine {
 
       ),
 
-      bottom = Math.min(900, Math.ceil(Math.max(from.y, to.y) + diameter));
+      bottom = Math.min(1024, Math.ceil(Math.max(from.y, to.y) + diameter));
 
 
 
@@ -2847,7 +2839,7 @@ export class DrawingEngine {
 
 
 
-    this.context.clearRect(0, 0, 900, 900);
+    this.context.clearRect(0, 0, 1024, 1024);
 
 
 
@@ -2884,7 +2876,7 @@ export class DrawingEngine {
 
 
 
-        this.context.drawImage(layer.ink.render(), 0, 0, 900, 900);
+        this.context.drawImage(layer.ink.render(), 0, 0, 1024, 1024);
 
       } else {
 

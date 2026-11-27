@@ -608,7 +608,7 @@ export function createDrawingSelectionControls({
 
 
 
-        Math.min(66, screenWidth > 0 ? (22 * 900) / screenWidth : 24),
+        Math.min(66, screenWidth > 0 ? (22 * 1024) / screenWidth : 24),
 
       );
 
@@ -752,7 +752,7 @@ export function createDrawingSelectionControls({
 
     if (drag.kind === "new") {
 
-      draft = normalizedRectangle(drag.start, point, 900, 900);
+      draft = normalizedRectangle(drag.start, point, 1024, 1024);
 
     } else if (drag.base) {
 
@@ -890,11 +890,11 @@ export function createDrawingSelectionControls({
 
 
 
-        900,
+        1024,
 
 
 
-        900,
+        1024,
 
       );
 

@@ -16,3 +16,4 @@ from .favorites import routes as favourites_route
 from .search import routes as search_route
 from .streams import routes as streams_route
 from .auth import routes as auth_route
+from .artworks import qr

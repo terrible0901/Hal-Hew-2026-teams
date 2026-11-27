@@ -136,44 +136,11 @@ export const drawingThemes = [
 
 
 export const drawingTimes = [
-
-  {
-
-    seconds: 30,
-
-
-
-    label: "30秒",
-
-  },
-
-
-
-  {
-
-    seconds: 60,
-
-
-
-    label: "1分",
-
-  },
-
-
-
-  {
-
-    seconds: 3600,
-
-
-
-    label: "1時間",
-
-  },
-
+  {seconds: 10, label: "10秒"},
+  {seconds: 30, label: "30秒"},
+  {seconds: 60, label: "1分"},
+  {seconds: 300, label: "5分"},
 ];
-
-
 
 export function getDrawingDuration(value) {
 

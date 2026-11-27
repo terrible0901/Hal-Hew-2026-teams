@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS hew;
+CREATE DATABASE IF NOT EXISTS hew CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE hew;
 
@@ -8,6 +8,7 @@ CREATE TABLE users (
     disp_name VARCHAR(50) NOT NULL, -- set default="user{user.id}" with FLASK
     -- email VARCHAR(225) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
+    recovery_hash VARCHAR(255) NULL,
     role ENUM('user','admin') NOT NULL DEFAULT 'user',
     point_balance INT UNSIGNED NOT NULL DEFAULT 0,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
@@ -22,7 +23,7 @@ CREATE TABLE artworks (
     description TEXT NULL,
     category ENUM('free','vehicle','animal','insect','plant','food','chara','domae') NOT NULL, -- 追加
     image_path VARCHAR(500) NOT NULL,
-    draw_time ENUM('short','mid','long') NOT NULL,
+    draw_time ENUM('short','mid','long','10s','30s','60s','300s') NOT NULL,
     status ENUM('draft','listed','sold','cancelled') NOT NULL DEFAULT 'draft',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -284,4 +285,18 @@ CREATE TABLE artwork_tags (
     
     UNIQUE INDEX idx_artworkid_tag (artwork_id, tag_id),
     INDEX idx_tag_artwork (tag_id, artwork_id)
+);
+
+CREATE TABLE IF NOT EXISTS drawing_files (
+    drawing_id CHAR(32) PRIMARY KEY,
+    artwork_id BIGINT UNSIGNED NOT NULL UNIQUE,
+    FOREIGN KEY (artwork_id) REFERENCES artworks(id)
+);
+
+CREATE TABLE IF NOT EXISTS qr_previews (
+    id CHAR(36) PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    token_hash CHAR(64) NOT NULL,
+    image MEDIUMBLOB NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );

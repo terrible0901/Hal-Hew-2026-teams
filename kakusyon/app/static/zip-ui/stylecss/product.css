@@ -1005,3 +1005,13 @@
     margin-inline: 16px;
   }
 }
+
+.artwork-information .original-file {
+  display: inline-block;
+  margin: .5rem .4rem;
+  text-decoration: underline;
+}
+.artwork-information form + form, .artwork-information details {
+  margin-top: .6rem;
+}
+.artwork-information details summary { cursor: pointer; }

@@ -40,7 +40,7 @@
     <script defer src="{{ url_for('static', filename='js/advertisements.js') }}"></script>
     {% set duration = request.args.get('duration', '') %}
     {% set visible_artworks = (search_result | selectattr('draw_time', 'equalto', duration) | list)
-        if duration in ('short', 'mid', 'long') else search_result %}
+        if duration in ('10', '30', '60', '300', '3600') else search_result %}
     <section aria-labelledby="catalog-title">
         <div class="catalog-heading">
             <div class="catalog-label">
@@ -49,12 +49,17 @@
                 <span>{{ visible_artworks | length }}件</span>
             </div>
             <div class="duration-tabs" role="group" aria-label="描画時間">
-                {% for value, label in [('', '全商品'), ('short', '30秒'), ('mid', '1分'), ('long', '1時間')] %}
+                {% for value, label in [('', '全商品'), ('10', '10秒'), ('30', '30秒'), ('60', '1分'), ('300', '5分')] %}
                     <a href="{{ url_for('index', duration=value or none, category=request.args.get('category'), search=request.args.get('search')) }}"
                        {% if value == duration %}aria-current="true"{% endif %}>{{ label }}</a>
                 {% endfor %}
             </div>
         </div>
+        {% if tags %}<form class="duration-tabs" method="get">
+            {% for name in ['duration','category','search'] %}{% if request.args.get(name) %}<input type="hidden" name="{{ name }}" value="{{ request.args[name] }}">{% endif %}{% endfor %}
+            {% for tag in tags %}<label><input type="checkbox" name="tag" value="{{ tag.id }}" {{ 'checked' if tag.id in selected_tags }}>{{ tag.name }}</label>{% endfor %}
+            <button class="button">タグで絞り込む</button>
+        </form>{% endif %}
         {% if visible_artworks %}
             {% from 'artwork_card.html' import artwork_card %}
             <div class="artwork-grid">

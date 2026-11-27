@@ -12,10 +12,9 @@
         <input id="password" type="password" name="password" autocomplete="current-password" placeholder="パスワードを入力" required>
         <button type="button" class="password-toggle" aria-controls="password" aria-label="パスワードを表示" aria-pressed="false">◉</button>
     </div>
-    <button type="button" class="password-help" disabled>パスワードをお忘れですか？</button>
+    <a class="password-help" href="{{ url_for('recover') }}">パスワードをお忘れですか？</a>
     <button type="submit" class="button primary">ログイン</button>
 </form>
-<div class="auth-separator">または</div>
-<button type="button" class="button auth-google" disabled>Google（テスト）で続ける</button>
+{# #error: Googleテスト認証はユーザー名認証に未対応。 #}
 <p class="auth-switch">アカウントをお持ちでない方 <a href="{{ url_for('signup_page') }}">新規登録はこちら</a></p>
 {% endblock %}

@@ -17,7 +17,7 @@
       src="/static/zip-ui/javascript/pages/drawing-canvas.js"
     ></script>
   </head>
-  <body>
+  <body data-starts-at="{{ draw.start }}" data-seconds="{{ draw.seconds }}" data-finished="{{ draw.finished or 0 }}" data-theme="{{ draw.theme }}" data-mode="{{ draw.mode }}" data-signed="{{ 1 if session.get('user_id') else 0 }}" data-drawing="{{ draw.id }}">
 
     <main
       id="drawing-shell"
@@ -305,6 +305,8 @@
             >
               ↶ 戻す
             </button>
+            <button id="redo-button" type="button" class="draw-tool-button">↷ やり直す</button>
+            <small id="drawing-cache-status" role="status"></small>
           </div>
 
         </aside>
@@ -317,8 +319,8 @@
               <canvas
                 id="drawing-canvas"
                 class="draw-canvas"
-                width="900"
-                height="900"
+                width="1024"
+                height="1024"
                 tabindex="0"
                 aria-label="描画キャンバス"
               ></canvas>
@@ -326,7 +328,7 @@
               <svg
                 id="selection-overlay"
                 class="draw-selection-overlay"
-                viewBox="0 0 900 900"
+                viewBox="0 0 1024 1024"
                 aria-hidden="true"
                 hidden
               >
@@ -495,7 +497,7 @@
                   aria-hidden="true"
                 >
                   <use href="#icon-layers"></use></svg
-                >レイヤー <span id="layer-count">1/4</span>
+                >レイヤー <span id="layer-count">1/10</span>
               </summary>
               <div class="pro-layers-body">
                 <p

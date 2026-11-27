@@ -259,3 +259,8 @@ button:disabled { cursor: default; }
 :where(.account-main) ul { list-style: none; padding: 0; }
 :where(.account-main) a { text-decoration: none; }
 .artwork-card-shell .mobile-favorite { border: 0; cursor: default; }
+
+.mobile-favorite[aria-pressed="true"] svg { fill: #d64964; color: #d64964; }
+.duration-tabs { flex-wrap: wrap; }
+.account-ledger { padding: 0; list-style: none; }
+.account-ledger li { padding: .8rem; border-bottom: 1px solid #d7e1df; }
