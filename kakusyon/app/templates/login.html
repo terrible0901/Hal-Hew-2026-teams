@@ -1,18 +1,20 @@
-<!-- 下記のフォームはデバギング用です。
- action,method,nameは同じように書いてください。 -->
-
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>login</title>
-</head>
-<body>
-    <form action="/log_in" method="post">
-        <input type="text" name="username" id="">
-        <input type="text" name="password" id="">
-        <input type="submit">
-    </form>
-</body>
-</html>
+{% set page_title = 'ログイン' %}
+{% extends 'auth_layout.html' %}
+{% block auth_form %}
+<h2 id="auth-title">おかえりなさい</h2>
+<p class="intro">登録したユーザー名でログインしてください。</p>
+<form class="auth-form" action="{{ url_for('log_in') }}" method="post">
+    <label for="username">ユーザー名</label>
+    <input id="username" name="username" autocomplete="username" placeholder="ユーザー名を入力" required>
+    <label for="password">パスワード</label>
+    <div class="password-field">
+        <input id="password" type="password" name="password" autocomplete="current-password" placeholder="パスワードを入力" required>
+        <button type="button" class="password-toggle" aria-controls="password" aria-label="パスワードを表示" aria-pressed="false">◉</button>
+    </div>
+    <button type="button" class="password-help" disabled>パスワードをお忘れですか？</button>
+    <button type="submit" class="button primary">ログイン</button>
+</form>
+<div class="auth-separator">または</div>
+<button type="button" class="button auth-google" disabled>Google（テスト）で続ける</button>
+<p class="auth-switch">アカウントをお持ちでない方 <a href="{{ url_for('signup_page') }}">新規登録はこちら</a></p>
+{% endblock %}
