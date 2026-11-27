@@ -50,7 +50,7 @@
             </div>
             <div class="duration-tabs" role="group" aria-label="描画時間">
                 {% for value, label in [('', '全商品'), ('10', '10秒'), ('30', '30秒'), ('60', '1分'), ('300', '5分')] %}
-                    <a href="{{ url_for('index', duration=value or none, category=request.args.get('category'), search=request.args.get('search')) }}"
+                    <a href="{{ url_for('index', duration=value or none, tag=request.args.getlist('tag'), category=request.args.get('category'), search=request.args.get('search')) }}"
                        {% if value == duration %}aria-current="true"{% endif %}>{{ label }}</a>
                 {% endfor %}
             </div>

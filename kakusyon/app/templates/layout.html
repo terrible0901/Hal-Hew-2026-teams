@@ -14,9 +14,11 @@
             <span>描クション</span>
         </a>
         <form class="search" action="{{ url_for('index') }}" method="get" role="search">
-            {% if request.args.get('duration') %}
-                <input type="hidden" name="duration" value="{{ request.args.get('duration') }}">
-            {% endif %}
+            {% for name in ['category', 'duration', 'tag'] %}
+                {% for value in request.args.getlist(name) if value %}
+                    <input type="hidden" name="{{ name }}" value="{{ value }}">
+                {% endfor %}
+            {% endfor %}
             <input type="search" name="search" aria-label="作品名・作家名から検索"
                    placeholder="作品名・作家名から検索" value="{{ request.args.get('search', '') }}">
         </form>
@@ -32,7 +34,7 @@
     </header>
     {% if auth_page or account_view %}
         <header class="mobile-heading">
-            <a href="{{ url_for('index', view='mypage') if account_view == 'bids' or auth_page else url_for('index') }}" aria-label="{{ 'マイページ' if account_view == 'bids' or auth_page else 'ホーム' }}へ戻る">←</a>
+            <a href="{{ url_for('index', view='mypage') if (account_view and account_view != 'mypage') or auth_page else url_for('index') }}" aria-label="{{ 'マイページ' if (account_view and account_view != 'mypage') or auth_page else 'ホーム' }}へ戻る">←</a>
             <strong>{{ page_title }}</strong>
         </header>
     {% endif %}
@@ -40,13 +42,13 @@
         <nav aria-label="カテゴリー">
             <strong>カテゴリー</strong>
             {% for value, label in [('','全商品'), ('free','free'), ('vehicle','乗り物'), ('animal','動物'), ('insect','昆虫'), ('plant','植物'), ('food','食べ物'), ('chara','キャラクター'), ('domae','堂前和希')] %}
-                <a href="{{ url_for('index', category=value, search=request.args.get('search'), duration=request.args.get('duration')) }}"
+                <a href="{{ url_for('index', category=value, tag=request.args.getlist('tag'), search=request.args.get('search'), duration=request.args.get('duration')) }}"
                    {% if request.args.get('category', '') == value %}aria-current="true"{% endif %}>{{ label }}<span class="category-chevron" aria-hidden="true">›</span></a>
             {% endfor %}
         </nav>
     </aside>
     <main class="site-main">
-        {% if not auth_page %}{% include 'flash_messages.html' %}{% endif %}
+        {% block notices %}{% if not auth_page %}{% include 'flash_messages.html' %}{% endif %}{% endblock %}
         {% block content %}{% endblock %}
     </main>
     {% include 'mobile_navigation.html' %}

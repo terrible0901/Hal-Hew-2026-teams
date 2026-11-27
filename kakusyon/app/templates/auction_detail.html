@@ -128,9 +128,9 @@
                 <h2>作品について</h2>
                 <p id="artwork-description">{{ result.description or "特になし" }}</p>
               </article>
-              {% include 'flash_messages.html' %}
+              {% set feedback = get_flashed_messages(with_categories=true) %}
               {% if result.auction_status == 'active' and session.get('user_id') != result.artist_id %}
-              <form data-bid-form action="{{ url_for('post_bid') }}" method="post">
+              <form data-bid-form {% if session.get('user_id') %}data-action="bid" data-confirm="この金額で入札しますか？"{% endif %} action="{{ url_for('post_bid') }}" method="post">
                 <input type="hidden" name="art_id" value="{{ result.auction_id }}">
                 <input type="hidden" name="seen_price" value="{{ result.current_price }}">
                 <label
@@ -169,6 +169,9 @@
               >
                 即決で落札する
               </button>
+              {% for category, message in feedback if category == 'error' %}
+                <p class="artwork-error" role="alert">{{ message }}</p>
+              {% endfor %}
               <form method="post" action="{{ url_for('favorite') }}">
                 <input type="hidden" name="art_id" value="{{ result.auction_id }}">
                 <input type="hidden" name="action" value="{{ 'remove' if result.favorite else 'add' }}">
@@ -177,12 +180,19 @@
                 </button>
               </form>
               {% if session.get('user_id') == result.artist_id and result.auction_status == 'active' and not result.winner_id %}
-                <form method="post" action="{{ url_for('cancel_auction',auction=result.auction_id) }}" data-confirm="出品を取り消しますか？">
+                <form method="post" action="{{ url_for('cancel_auction',auction=result.auction_id) }}" data-confirm="出品を取り消しますか？" data-action="cancel">
                   <button class="favorite-button">出品を取り消す</button>
                 </form>
               {% endif %}
+              {% if result.auction_status == 'cancelled' %}
+                <section class="cancelled-notice">
+                  <h2>この作品は出品を取り消しています</h2>
+                  <p>このオークションの入札受付は終了しました。</p>
+                  <a href="{{ url_for('index') }}">作品一覧へ戻る</a>
+                </section>
+              {% endif %}
               {% if session.get('user_id') == result.artist_id and result.auction_status != 'active' and not result.winner_id %}
-                <form method="post" action="{{ url_for('relist',auction=result.auction_id) }}" data-confirm="この作品を再出品しますか？">
+                <form method="post" action="{{ url_for('relist',auction=result.auction_id) }}" data-confirm="この作品を再出品しますか？" data-action="relist">
                   <label>開始価格（pt）<input type="number" min="0" required name="price" value="{{ result.current_price }}"></label>
                   <label>開催時間<select name="minutes">{% for n in [5,10,15,20] %}<option value="{{ n }}" {{ 'selected' if n==10 }}>{{ n }}分</option>{% endfor %}</select></label>
                   <button class="favorite-button">再出品する</button>
@@ -193,12 +203,9 @@
                 <a class="original-file" href="{{ url_for('download_art', art_id=result.id, kind='zip') }}">レイヤーZIPを保存</a>
                 {% if app_stop %}<small>取得期限 {{ app_stop.strftime("%Y/%m/%d %H:%M %Z") }}</small>{% endif %}
               {% endif %}
-              <p
-                data-auction-message
-                class="artwork-message"
-                role="status"
-                hidden
-              ></p>
+              {% for category, message in feedback if category != 'error' %}
+                <p class="artwork-message" role="status">{{ message }}</p>
+              {% endfor %}
             </div>
           </div>
         </section>
@@ -224,6 +231,14 @@
           <div class="related-grid" id="related-artworks" data-src="{{ url_for('index', view='related', exclude=request.args.get('id')) }}"></div>
           <p id="related-status" role="status"></p>
         </section>
+        <dialog id="auction-confirm" class="cancel-dialog" aria-labelledby="confirm-heading" aria-describedby="confirm-description">
+          <h2 id="confirm-heading"></h2>
+          <p id="confirm-description"></p>
+          <div class="cancel-dialog-actions">
+            <button type="button" id="keep-editing" autofocus>戻る</button>
+            <button type="button" id="confirm-action"></button>
+          </div>
+        </dialog>
         <script defer src="{{ url_for('static', filename='js/artwork-detail.js') }}"></script>
         {% endif %}
       </div>

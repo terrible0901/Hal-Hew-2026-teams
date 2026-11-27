@@ -825,3 +825,6 @@
     padding-right: 11px;
   }
 }
+
+.coin-history-table[hidden], .coin-history-row[hidden], #period-empty[hidden],
+.coin-history-heading[hidden] { display: none; }

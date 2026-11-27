@@ -7,6 +7,8 @@
 <link rel="stylesheet" href="{{ url_for('static',filename='zip-ui/stylecss/artwork-cards.css') }}">
 <link rel="stylesheet" href="{{ url_for('static',filename='zip-ui/stylecss/' ~ ('account-coins.css' if view=='wallet' else 'account-identity.css' if view=='profile' else 'account-trades.css')) }}">
 {% endblock %}
+{% set profile_saved = view == 'profile' and '表示名を変更しました。' in get_flashed_messages(category_filter=['success']) %}
+{% block notices %}{% if not profile_saved %}{{ super() }}{% endif %}{% endblock %}
 {% block content %}
 <section class="account-main">
   <div class="account-page-heading"><h1>{{ page_title }}</h1><a href="{{ url_for('index',view='mypage') }}">マイページへ戻る</a></div>
@@ -18,10 +20,18 @@
           <div class="trade-card-image artwork-watermark"><img src="{{ url_for('get_drawing',filename=item.image_path) }}" alt=""></div>
           <h3>{{ item.title }}</h3>
         </a>
+        {% if view == 'favorites' %}
+        <form action="{{ url_for('favorite') }}" method="post" data-remove-favorite>
+          <input type="hidden" name="art_id" value="{{ item.id }}">
+          <input type="hidden" name="action" value="remove">
+          <button class="trade-card-favorite" aria-label="「{{ item.title }}」をお気に入りから外す" aria-pressed="true">♥</button>
+        </form>
+        {% endif %}
         <p class="trade-card-artist trade-muted">作者 {{ item.artist_name }}</p><strong class="trade-card-price">{{ item.current_price }}pt</strong>
         <a class="account-button-secondary trade-card-action" href="{{ url_for('item_detail',id=item.id) }}">作品を見る</a>
       </article>
     {% else %}<div class="account-card account-empty"><p>作品はまだありません。</p><a class="account-button" href="{{ url_for('index') }}">作品を探す</a></div>{% endfor %}</div>
+    {% if view == 'favorites' %}<p id="favorite-error" role="alert" hidden></p>{% endif %}
   {% elif view == 'notifications' %}
     {% if notices %}<form method="post" action="{{ url_for('read_notifications') }}"><input type="hidden" name="through" value="{{ notices[0].id }}"><button class="button">すべて既読にする</button></form>{% endif %}
     <ul class="account-ledger">{% for n in notices %}<li>{{ '未読 · ' if not n.is_read }}{{ n.created_at }}　{{ n.message }}
@@ -30,18 +40,32 @@
   {% elif view == 'wallet' %}
     <h2>保有ポイント {{ account.point_balance }}pt</h2>
     {% if ledger %}
+    <div class="coin-history-heading" data-period-controls hidden>
+      <h2>利用履歴</h2>
+      <label><span class="coin-visually-hidden">表示する期間</span><select id="ledger-period">
+        <option value="all">すべての期間</option><option value="month">今月</option><option value="quarter">過去3か月</option>
+      </select></label>
+    </div>
     <div class="account-card coin-history-table">
       <div class="coin-history-table-header"><span>日時</span><span>内容</span><span>増減</span><span>残高</span><span>詳細</span></div>
-      {% for row in ledger %}<article class="coin-history-row">
+      {% for row in ledger %}<article class="coin-history-row" data-month="{{ row.created_at.year * 12 + row.created_at.month }}">
         <time>{{ row.created_at }}</time><strong class="coin-history-description">{{ {'bonus':'ボーナス','bid':'入札','purchase':'落札売上','refund':'返還','charge':'チャージ'}[row.transaction_type] }}</strong>
         <strong class="coin-history-amount">{{ '%+d'|format(row.amount) }}pt</strong><span class="coin-history-value">{{ row.balance_after }}pt</span>
         {% if row.related_auction_id %}<a href="{{ url_for('item_detail',id=row.related_auction_id) }}">詳細を見る →</a>{% endif %}
       </article>{% endfor %}
-    </div>{% else %}<p class="account-card account-empty">利用履歴はありません。</p>{% endif %}
+    </div><p class="account-card account-empty" id="period-empty" role="status" hidden>この期間の利用履歴はありません。</p>
+    {% else %}<p class="account-card account-empty">利用履歴はありません。</p>{% endif %}
   {% elif view == 'drafts' %}
     <div class="artwork-grid">{% for item in drafts %}<a class="artwork-card" href="{{ url_for('complete',drawing=item.drawing_id) }}">
       <img class="artwork-card-image" src="{{ url_for('get_drawing',filename=item.image_path) }}" alt=""><strong>{{ item.title }}</strong> 出品設定へ</a>
     {% else %}<p>保存した下書きはありません。</p>{% endfor %}</div>
+  {% elif profile_saved %}
+    <section class="identity-card identity-result" aria-labelledby="profile-result">
+      <span class="identity-result-icon" aria-hidden="true">✓</span>
+      <h2 id="profile-result">プロフィールを更新しました</h2><p>表示名を「{{ disp_name }}」に変更しました。</p>
+      <a class="identity-primary" href="{{ url_for('index',view='mypage') }}">マイページへ戻る</a>
+      <a class="identity-center-link" href="{{ url_for('index',view='profile') }}">もう一度編集する</a>
+    </section>
   {% elif view == 'profile' %}
     <section class="identity-card identity-profile">
       <div class="mypage-profile-person"><span class="account-avatar">{{ disp_name[:1] }}</span><p>@{{ username }}</p></div>
@@ -49,4 +73,5 @@
     <section class="identity-card identity-auth"><h2>復旧コード</h2><form class="auth-form" action="{{ url_for('reissue') }}" method="post"><label>現在のパスワード<input type="password" autocomplete="current-password" name="password" required></label><button class="button">復旧コードを再発行</button></form></section>
   {% endif %}
 </section>
+{% if view in ('favorites','wallet') %}<script defer src="{{ url_for('static', filename='js/account-lists.js') }}"></script>{% endif %}
 {% endblock %}

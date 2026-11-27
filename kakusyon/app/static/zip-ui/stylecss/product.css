@@ -1015,3 +1015,60 @@
   margin-top: .6rem;
 }
 .artwork-information details summary { cursor: pointer; }
+
+.cancelled-notice {
+  margin-top: 32px;
+  padding: 20px;
+  border: 1px solid #b8cac6;
+  border-radius: 6px;
+  background: #f2f6f5;
+}
+.cancelled-notice h2 {
+  font-weight: 900;
+}
+.cancelled-notice p {
+  margin-top: 8px;
+  color: #61777d;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.cancel-dialog {
+  width: min(420px, calc(100% - 32px));
+  margin: auto;
+  padding: 24px;
+  border: 1px solid #b8cac6;
+  border-radius: 8px;
+  background: white;
+  color: #183c48;
+}
+.cancel-dialog::backdrop {
+  background: rgb(0 0 0 / 55%);
+}
+.cancel-dialog h2 {
+  font-size: 20px;
+  font-weight: 900;
+}
+#confirm-description {
+  margin-top: 8px;
+  color: #61777d;
+  line-height: 1.75;
+}
+.cancel-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+.cancel-dialog-actions button {
+  padding: 10px 16px;
+  border: 1px solid #b8cac6;
+  border-radius: 6px;
+  font-weight: 700;
+}
+#confirm-action {
+  border-color: #c94c50;
+  background: #c94c50;
+  color: white;
+}
