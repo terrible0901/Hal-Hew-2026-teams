@@ -19,17 +19,6 @@ import {
 
 
 
-import {
-
-
-  countDescriptionCharacters,
-
-  isValidArtworkDescription,
-
-} from "../features/auction-policy.js";
-
-
-
 import { createDrawingSaveDialog } from "../common/image-save-dialog.js";
 
 
@@ -173,24 +162,14 @@ createDrawingSaveDialog({
 
 function updateDescriptionCount() {
 
-  const count = countDescriptionCharacters(descriptionInput.value.trim());
-
-
-
+  // Python strips Unicode whitespace and counts code points, including emoji joiners.
+  const text = descriptionInput.value.replace(/^[\p{White_Space}\u001c-\u001f]+|[\p{White_Space}\u001c-\u001f]+$/gu, "");
+  const count = Array.from(text).length;
+  const invalid = count > 100;
   descriptionCount.textContent = count + " / 100字";
-
-
-
-  const invalid = !isValidArtworkDescription(descriptionInput.value);
-
-
-
   descriptionCount.classList.toggle("is-invalid", invalid);
-
-
-
   descriptionInput.setAttribute("aria-invalid", String(invalid));
-
+  descriptionInput.setCustomValidity(invalid ? "作品説明は100字以内で入力してください。" : "");
 }
 
 
@@ -212,7 +191,10 @@ form.addEventListener("submit", async event => {
   if (!form.reportValidity() || publish.disabled) return;
   publish.disabled = true;
   try {
-    const response = await fetch(form.action, {method: "POST", body: new FormData(form)});
+    // Send textarea line breaks as LF so each newline counts once on both sides.
+    const fields = new URLSearchParams(new FormData(form));
+    fields.set("price", String(form.elements.price.valueAsNumber));
+    const response = await fetch(form.action, {method: "POST", body: fields});
     const result = await response.json();
     if (!response.ok) throw new Error(result.error);
     location.assign(result.redirect);

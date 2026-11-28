@@ -130,13 +130,16 @@
               </article>
               {% set feedback = get_flashed_messages(with_categories=true) %}
               {% if result.auction_status == 'active' and session.get('user_id') != result.artist_id %}
+              {% set bid_limit = 2147483647 %}
+              {% set at_limit = result.current_price >= bid_limit %}
               <form data-bid-form {% if session.get('user_id') %}data-action="bid" data-confirm="この金額で入札しますか？"{% endif %} action="{{ url_for('post_bid') }}" method="post">
                 <input type="hidden" name="art_id" value="{{ result.auction_id }}">
                 <input type="hidden" name="seen_price" value="{{ result.current_price }}">
                 <label
                   >入札金額<span class="bid-input-wrapper"
                     ><input
-                      data-bid-input name="bid_amount" min="{{ result.current_price + 1 }}" value="{{ result.current_price + 1 }}"
+                      data-bid-input name="bid_amount" max="{{ bid_limit }}" min="{{ result.current_price + 1 }}"
+                      value="{{ '' if at_limit else result.current_price + 1 }}" {% if at_limit %}disabled{% endif %}
                       type="number"
                       step="1"
                       required
@@ -147,6 +150,7 @@
                 <button
                   type="submit"
                   class="bid-submit"
+                  {% if at_limit %}disabled{% endif %}
                 >
                   {{ 'この金額で入札する' if session.get('user_id') else 'ログインして入札する' }}
                 </button>
@@ -154,8 +158,8 @@
               {% if session.get('user_id') %}
               <details><summary>自動入札{% if auto %}（上限 {{ auto.max_amount }}pt）{% endif %}</summary>
                 <form method="post" action="{{ url_for('auto_bid',auction=result.auction_id) }}">
-                  <label>上限額（pt）<input type="number" name="maximum" min="{{ result.current_price + 1 }}" required></label>
-                  <button class="favorite-button">上限を設定</button>
+                  <label>上限額（pt）<input type="number" name="maximum" max="{{ bid_limit }}" min="{{ result.current_price + 1 }}" required {% if at_limit %}disabled{% endif %}></label>
+                  <button class="favorite-button" {% if at_limit %}disabled{% endif %}>上限を設定</button>
                   {% if auto %}<button class="favorite-button" name="stop" value="1" formnovalidate>自動入札を停止</button>{% endif %}
                 </form>
               </details>
@@ -193,7 +197,7 @@
               {% endif %}
               {% if session.get('user_id') == result.artist_id and result.auction_status != 'active' and not result.winner_id %}
                 <form method="post" action="{{ url_for('relist',auction=result.auction_id) }}" data-confirm="この作品を再出品しますか？" data-action="relist">
-                  <label>開始価格（pt）<input type="number" min="0" required name="price" value="{{ result.current_price }}"></label>
+                  <label>開始価格（pt）<input type="number" min="0" max="2147483647" required name="price" value="{{ result.current_price }}"></label>
                   <label>開催時間<select name="minutes">{% for n in [5,10,15,20] %}<option value="{{ n }}" {{ 'selected' if n==10 }}>{{ n }}分</option>{% endfor %}</select></label>
                   <button class="favorite-button">再出品する</button>
                 </form>

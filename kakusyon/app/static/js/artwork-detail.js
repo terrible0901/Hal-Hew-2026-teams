@@ -36,6 +36,16 @@ const backButton = document.getElementById("keep-editing");
 const artworkTitle = document.querySelector("[data-art-title]").textContent;
 let pendingForm = null;
 
+// HTML number inputs accept decimal and exponent notation for whole numbers.
+// Send the integer spelling expected by the Flask form parser.
+for (const input of document.querySelectorAll('form input[type="number"][max]')) {
+    input.form.addEventListener("formdata", event => {
+        if (input.validity.valid && input.value) {
+            event.formData.set(input.name, String(input.valueAsNumber));
+        }
+    });
+}
+
 document.querySelectorAll("form[data-confirm]").forEach(form => {
     form.addEventListener("submit", event => {
         event.preventDefault();
@@ -82,10 +92,19 @@ async function refreshAuction() {
         document.querySelector("[data-auction-price]").textContent =
             Number(state.current_price).toLocaleString("ja-JP") + "pt";
         const form = document.querySelector("[data-bid-form]");
+        const autoLimit = document.querySelector('input[name="maximum"]');
+        if (autoLimit) {
+            autoLimit.min = state.current_price + 1;
+            autoLimit.disabled = state.current_price >= Number(autoLimit.max);
+            autoLimit.form.querySelector("button").disabled = autoLimit.disabled;
+        }
         if (form && pendingForm !== form && Number(form.elements.seen_price.value) !== state.current_price) {
             form.elements.seen_price.value = state.current_price;
-            form.elements.bid_amount.min = state.current_price + 1;
-            form.elements.bid_amount.value = Math.max(state.current_price + 1, Number(form.elements.bid_amount.value));
+            const amount = form.elements.bid_amount;
+            amount.min = state.current_price + 1;
+            amount.disabled = state.current_price >= Number(amount.max);
+            amount.value = amount.disabled ? "" : Math.max(state.current_price + 1, Number(amount.value));
+            form.querySelector("button").disabled = amount.disabled;
         }
     } catch { /* The next refresh retries transient connection failures. */ }
     finally { window.setTimeout(refreshAuction, 2500); }
